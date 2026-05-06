@@ -1,0 +1,1116 @@
+Improving Multimodal Reasoning via Worst Dimension Optimization
+Haocheng Lv,Huaping Zhang,Qiuchi Li,Lei LiandChunxiao Gao ∗
+Beijing Institute of Technology
+{3120255822, kevinzhang, liqiuchi}@bit.edu.cn, lenny.lilei.cs@gmail.com, gao chunxiao@bit.edu.cn
+Abstract
+Multimodal reasoning requires a path that retains
+integrity over a wide range of constraints, from
+visual grounding to logic consistency. However,
+the current Process Reward Models (PRMs) fo-
+cus on heuristically defined rewards that equally
+weigh these factors, which may lead to the con-
+cealment of individual dimension failures (such as
+visual hallucinations) by the dominating factors,
+without guaranteeing the validity of the reasoning
+process in general. Therefore, to overcome the lim-
+itation, the paper proposes the concept of Multi-
+modal Multi-Dimensional Salarization Process Re-
+ward Modeling (MMS-PRM), a paradigm specif-
+ically developed to enforce the worst dimension’s
+robustness in multimodal reasoning. Specifically,
+a hierarchical fine-grained reward space is devel-
+oped to represent the multimodal risks in the rea-
+soning tasks, and a Chebyshev-based Monte Carlo
+Tree Search (MCTS) algorithm is introduced, in
+which the primary focus during the path searching
+is given to the worst-performing dimension. More-
+over, a curriculum-based Direct Preference Opti-
+mization (DPO) approach is developed to gradually
+learn the balanced reasoning skills in the policy.
+The experimental results show that, without the di-
+mension collapse issue, the MMS-PRM approach
+significantly improves the reliability of the multi-
+modal reasoning performance and reaches compet-
+itive results in various challenging tasks.
+1 Introduction
+Multimodal Large Language Models (MLLMs) are shown to
+perform well on complex reasoning tasks such as mathemat-
+ical diagrams and scientific figures. In contrast to the rea-
+soning task on pure-text reasoning, multimodal reasoning re-
+quires satisfying multiple constraints simultaneously, includ-
+ing visual grounding and logical correctness, where violation
+of any single aspect invalidates the entire reasoning trajectory.
+To supervise such processes, prior work introduces Process
+Reward Models (PRMs) that provide step-level feedback.
+∗Corresponding author.
+Step1：
+Analyze Given Information. The 
+problem gives us a triangle ∆ABC 
+with specific information: AB = AC, 
+∠A = 40○), and DE is the 
+perpendicular bisector of AB, 
+intersecting AC at point E.
+Step2：
+Determine ∠ABC and ∠ACB. 
+Since AB = AC, triangles ∆ABE and 
+∆ACE are congruent due to the 
+side-angle-side (SAS) criteria. 
+Therefore, ∠ABE = ∠ACE = 40○.
+Step5：
+Identify Related Angles in Triangle. 
+Consider ∆BEC. Since BE bisects 
+AC and DE ⟂AC, points E and D 
+form an important relationship, 
+knowing angles can be divided 
+evenly.
+score=0.94 score=0.82 score=0.86
+...
+...
+Valid Trajectory
+Existing PRM：
+MMS-PRM(Our Method)：
+...
+Invalid Trajectory
+Logical Consistency
+Visual Grounding
+Geometric Validity
+...
+Monte Carlo Tree Search
+Figure 1: Comparison Between Existing Methods and Our Method.
+However, existing PRMs[Wanget al., 2025; Luoet al., 2025;
+Onget al., 2025; Gaoet al., 2025 ] typically collapse multiple
+quality dimensions into a single scalar reward. This makes
+it possible for good performance in some factors to compen-
+sate bad performance in other factors, which causes incorrect
+reasoning paths to be reinforced.
+The problem caused by the compensation mechanism is
+even more severe in multimodal reasoning tasks. As shown
+in Figure 1, the reasoning process can have a mathemati-
+cally well-organized reasoning chain with the use of the hal-
+lucinated visual relations. Because the text logic is well-
+organized, the reasoning process will normally be assigned
+with a high confidence score by the scalar PRM, without pun-
+ishing the reasoning process for the factual error. The failure
+indicates that there is a severe weakness in the current aver-
+aging approach for designing the reward.
+Such findings lead to the primary tenet in this paper:the
+integrity of an active multimodal reasoning trajectory is mea-
+sured not by average quality but by the worst active dimen-
+
+sion.An active reasoning step that is valid but unground
+in images is inherently invalid and should not be reinforced.
+Therefore, successful multimodal alignment should progress
+from optimizing for expectation maximization rewards to
+non-compensatory goals that punish worst-dimension degen-
+eration.
+To operationalize this principle, we propose MMS-PRM,
+a search-enhanced, multi-dimensional process reward frame-
+work for multimodal reasoning. We reformulate multimodal
+process rewarding as a multi-objective trajectory optimiza-
+tion problem, where the quality of each reasoning step and
+consequently the whole reasoning trajectory is governed by
+its weakest relevant dimension rather than an aggregated
+score. First, we construct a hierarchical, fine-grained re-
+ward space that decomposes multimodal reasoning quality
+into interpretable dimensions and sub-dimensions, allowing
+rewards to be dynamically activated based on the evolving
+reasoning context. Second, we introduce a Chebyshev-guided
+Monte Carlo Tree Search (MCTS) that explicitly prioritizes
+the worst-performing reward dimension during trajectory ex-
+ploration, preventing compensation across conflicting crite-
+ria and promoting balanced reasoning paths. Finally, we
+integrate a curriculum-style Direct Preference Optimization
+(DPO) strategy that progressively trains MLLMs with our
+obtained balanced reasoning trajectories, from short, high-
+confidence trajectories to long-horizon multimodal reasoning
+chains.
+Through this closed-loop framework, MMS-PRM enforces
+balance between visual grounding, logical coherence, and se-
+mantic correctness at both step and trajectory levels. Ex-
+tensive experiments on diverse and challenging multimodal
+reasoning benchmarks demonstrate that MMS-PRM signifi-
+cantly improves reasoning reliability and robustness, particu-
+larly on long-horizon and visually demanding tasks.
+This contributions of this work are as follows:
+• We identify a fundamental limitation of scalar process
+rewards in multimodal reasoning and reformulate pro-
+cess reward modeling as a non-compensatory, multi-
+dimensional trajectory optimization problem.
+• We propose a worst-dimension-aware search frame-
+work that combines hierarchical process rewards with
+Chebyshev-scalarized MCTS to enforce balanced multi-
+modal reasoning.
+• We introduce a curriculum-based preference alignment
+strategy that effectively transfers search-discovered rea-
+soning behaviors into the model, achieving strong per-
+formance and generalization across benchmarks.
+2 Related Work
+VLM Reasoning.As VLMs continue to be used for increas-
+ingly complex tasks in mathematics and science [Yueet al.,
+2024b; Wanget al., 2024a ], the need for improving their
+reasoning ability has become crucial. Previous studies use
+Chain-of-Thought (CoT) reasoning to facilitate complex vi-
+sual reasoning tasks, such as constructing CoT datasets for
+mathematical diagrams[Zhanget al., 2024b ], aligning visual
+regions with reasoning steps[Shaoet al., 2024 ], or decompos-
+ing long-chain reasoning via multi-agent frameworks [Dong
+et al., 2025]. These advances demonstrate the importance of
+modeling intermediate reasoning steps[Zhanget al., 2025b ].
+Nevertheless, the majority of the previous studies use coarse-
+grained reasoning supervision [Liet al., 2024; Shaoet al.,
+2024; Denget al., 2024 ]. In contrast, our work introduces
+a fine-grained, structured reasoning paradigm to more pre-
+cisely enhance VLM reasoning.
+Process Reward Model.With more complex tasks being
+addressed by LLMs, there is a need to reason over longer
+trajectories, rendering it inadequate to check coherence and
+correctness of reasoning using Outcome reward model(ORM)
+[Weiet al., 2022; Snellet al., 2024; Luoet al., 2024 ]. This
+is overcome by process-based reward models, which offer
+dense supervision of reasoning trajectories [Lightmanet al.,
+2023]. Early PRM work focuses on objective domains such
+as mathematics, where intermediate steps admit clear correct-
+ness criteria, either by directly modeling step-wise correct-
+ness [Wanget al., 2024b ] or estimating its likelihood [Wang
+et al., 2024e; Guanet al., 2025 ]. Recent studies extend
+PRMs to multimodal reasoning. VisualPRM [Wanget al.,
+2025] aligns intermediate reasoning with visual evidence via
+step-level rewards, URSA [Luoet al., 2025 ] integrates pro-
+cess supervision into policy learning through reinforcement
+learning, while VL-PRM300K [Onget al., 2025 ] and SVIP
+[Gaoet al., 2025 ] enable detailed multimodal supervision
+with large-scale annotated datasets and visual programming.
+The current state-of-the-art in multimodal PRM is based on
+scalarized rewards, which may hiding important dimensions.
+To address this issue, we introduce the MMS-PRM, which
+represents multimodal process-level supervision in a multi-
+dimensional reward space to capture the quality of reason-
+ing more accurately.Tree-based Search in LLMs.Tree
+structures have demonstrated significant potential in language
+models [Qiet al., 2024; Wuet al., 2024 ]. Recent efforts ex-
+plore applying these tree search methods to identify effec-
+tive reasoning paths for MLLMs. AR-MCTS [Donget al.,
+2024] enhances multimodal reasoning by integrating MCTS
+with active retrieval, but its high computational overhead and
+extensive iterations limit its practicality. Similarly, Mulberry
+[Yaoet al., 2024a ] distills 260K long-chain reasoning sam-
+ples via tree structures from powerful models like GPT-4o,
+but relies heavily on resource-intensive teacher models.
+3 Method
+Multimodal reasoning differs from pure-text reasoning in
+that the model must keep every intermediate step visually
+grounded, logically coherent, and eventually answer-correct.
+This requires supervising both single-step quality and the dy-
+namics from steps to the full trajectory. Simple final-answer
+supervision may overlook intermediate reasoning errors,
+while only step-level supervision may produce locally sound
+steps that fail to compose into a globally valid reasoning
+chain. To cope with this, we build a closed-loop alignment
+framework consisting of three parts: (1) a hierarchical,
+fine-grained reward space that models multimodal reasoning
+quality at the single-step level via multi-dimensional rewards;
+(2) a reward-guided Chebyshev MCTS that dynamically
+searches for trajectories balancing all activated reward di-
+
+mensions; and (3) a curriculum-style DPO that progressively
+aligns the MLLM policy from easy/short chains to hard/long
+chains. The whole pipeline is shown in Figure 2.
+3.1 Hierarchical Fine-Grained Reward Space
+The first component turns raw model outputs into reusable,
+structured reward dimensions.
+Candidate Criteria Generation.For each instance in the
+training set, we derive criteria based on the reasoning steps.
+Given an inputxand a reasoning sequenceˆyproduced by
+model sampling, we apply an automated analyzerJ(·), typ-
+ically instantiated as a vision-language model, to extract at
+most 5 relevant criteria:
+J(x,ˆy) ={c 1, c2, . . .},(1)
+These criteria assess the reasoning quality, addressing vari-
+ous factors such as visual alignment, semantic correctness,
+logical consistency, stepwise coherence, and conciseness.
+Embedding and Clustering.The criteria gathered are em-
+bedded into ad-dimensional vector space:
+V(c i) = [v(1)
+i , . . . , v(d)
+i ],(2)
+where d is the embedding dimensionality. hierarchical clus-
+tering is performed to group similar criteria together, halting
+when the similarity between criteria drops below a certain
+thresholdξ. This results in a hierarchical reward structure
+H={H 1,H 2, . . .}, where higher levels are broad (e.g., ”vi-
+sually grounded”) and lower levels are more specific (e.g.,
+”accurately references bar #3”).
+Stepwise Reward Allocation.The dynamic process of re-
+ward assignment employs a reward treeTto assign stepwise
+reward signals. For each stepˆy(t)in then-step reasoning
+trajectoryˆy={ˆy(1),ˆy(2), . . . ,ˆy(n)}, the corresponding re-
+ward is allocated dynamically.
+Specifically, for thet-th stepˆy(t), a selection function first
+chooses a coarse-grained parent reward noder parent from the
+top level of the reward treeT, representing the primary risk
+dimension to be evaluated at this step. Conditioned onˆy(t)
+andr parent, an analysis functionΦdetermines whether finer-
+grained evaluation is required, and if so, generates a set of
+candidate textual evaluation criteria:
+Ct = Φ(ˆy(t), rparent),C t ={c 1
+t , c2
+t , . . . , cKt
+t }.(3)
+Each criterionc i
+t ∈ C t is embedded into ad-dimensional
+semantic space using the embedding functionV(·). To fil-
+ter out criteria that are weakly related or semantically drifting
+away from the selected parent reward, we compute the cosine
+distance between each criterion embedding and the parent re-
+ward embedding:
+δt
+i =D
+
+V(c i
+t), V(r parent)
+
+,(4)
+whereD(·)denotes cosine distance.
+This distance-based filtering serves as a heuristic safeguard
+rather than a strict semantic entailment test, aiming to remove
+candidate criteria that are loosely related to the intended risk
+dimension or shift focus away from the core evaluation objec-
+tive. Accordingly, the set of activated reward nodes for stept
+is defined as:
+Rt ={r i
+t |c i
+t ∈ C t, δ t
+i ≤ζ},(5)
+where eachr i
+t denotes the reward tree node associated with
+criterionc i
+t, andζis a predefined distance threshold.
+Finally, each activated reward noderi
+t ∈R t is scored using
+a step-level scoring functionS(·):
+si(t) =S
+
+ˆy(t), ri
+t
+
+,(6)
+All step-level reward scores produced by the scoring func-
+tionS(·)are initially defined on a discrete scale of[1,10].
+To ensure consistency across heterogeneous reward dimen-
+sions, we linearly normalize each reward dimension into
+[0,1]before any trajectory aggregation or scalarization is ap-
+plied. Specifically, a raw scores∈[1,10]is mapped to
+˜s= (s−1)/9.
+3.2 Dynamic Reward-Guided Chebyshev MCTS
+The second component uses search to explore trajectories
+that are simultaneously good across all activated dimensions,
+where the reward space assigns a multi-dimensional reward
+vector to each reasoning step rather than a single scalar or
+final outcome.
+Chebyshev scalarization.Given a reward vectorv=
+(v1, . . . , vM)and an adaptive ideal pointz ∗ = (z∗
+1 , . . . , z∗
+M),
+we first consider the standard Chebyshev scalarization, de-
+fined as:
+gcheby(v;z ∗) =−max
+j
+
+z∗
+j −v j
+
+.(7)
+However, multimodal reasoning tasks often involve noisy re-
+ward signals, where a single isolated misclassification by the
+reward model could excessively penalize a valid trajectory
+under the strict min-max criterion. To mitigate this noise
+and enhance robustness, we employ theAugmented Cheby-
+shev Scalarization:
+gaug(v;z ∗) =g cheby(v;z ∗)−ρ
+MX
+j=1
+(z∗
+j −v j)(8)
+whereρis a small positive constant serving as a regulariza-
+tion term. This formulation preserves 1. focus on the worst
+dimension due to the chebyshev term; 2. for trajectories that
+are good on all aspects, the augmented term can capture their
+subtle differences and identify the best candidate
+MCTS Implementation.The MCTS algorithm constructs
+a tree of reasoning steps, where each node corresponds to a
+partial reasoning trajectory. In a nutshell, the algorithm dy-
+namically searches for the best trajectory based on Chebyshev
+scalarized rewards:
+•Selection:Starting from the root, the algorithm tra-
+verses the tree by selecting the child node that max-
+imizes the Upper Confidence Bound applied to Trees
+(UCT) score:
+UCT(n) =g aug(Rstep(n);z ∗) +c
+s
+logN(parent(n))
+N(n) ,
+(9)
+
+Overall Reward
+Visual Grounding
+ Logic/Reasoning
+ Conciseness
+Angles Identified 
+Accurately
+chart elements correctly recognized
+colors distinguished 
+precisely
+Causal Relationship Correct
+Internal Consistency Inferential 
+Completeness Information Density
+Redundancy 
+Elimination
+Focus Prominence
+a) Hierachical Fine-Grained Reward Space
+......
+b) Dynamic Reward-Guided Chebyshev MCTS
+(1) Selection (2) Expansion
+ (3) Rewarding
+Selected Node Rejected Node
+(4) Backpropagation
+R = 0.84 R = 0.84
+c) Curriculum DPO for Policy Alignment
+Adaptive Ideal Point Update
+Reward & Criteria Generation
+Embedding & Clustering
+Image Question
+reasoning step 1
+reasoning step 2
+......
+reasoning step t
+Worst-dimension Trajectory Optimization 
+1
+Ideal Point Update
+target-aware reward criteria
+2
+Difficulty Scheduling
+sample harder reasoning steps
+3
+Curriculum DPO
+align selected over rejectedpreference pair
+Figure 2: Overview of MMS-PRM. The framework consists of three components: (a) a hierarchical, fine-grained reward space that decom-
+poses multimodal reasoning quality into interpretable dimensions and assigns step-level rewards; (b) a Chebyshev-guided Monte Carlo Tree
+Search (MCTS) that explores reasoning trajectories by explicitly prioritizing the worst-performing dimension; and (c) a curriculum-style
+Direct Preference Optimization (DPO) that transfers balanced reasoning behaviors discovered by search into the policy. Together, these com-
+ponents form a closed-loop process that enforces non-compensatory, balanced multimodal reasoning.
+whereR step(n)denote theM-dimensional reward vector
+associated with noden, while the scalarized step quality
+is always obtained viagaug(·).ccontrols the exploration-
+exploitation trade-off. Here, N(n) represents the number
+of node n has been visited, whileN(parent(n))denotes
+the visit count of its parent node. The next node is se-
+lected vian next = arg maxn′∈children(n) UCT(n′).
+•Expansion:Upon reaching a leaf node, we expand the
+tree by samplingkcandidate steps{y (t)
+1 , . . . , y(t)
+k }from
+the current policyπ θ(y(t)|x, y(<t)). Each candidate in-
+stantiates a new child node.
+•Evaluation:For a newly expanded noden, we eval-
+uate its immediate quality. Instead of random roll-
+outs, we compute the fine-grained process reward vec-
+torR step(n). We then apply the Augmented Cheby-
+shev Scalarizationg aug(·)to condense this vector into
+a scalar, strictly penalizing the worst-performing dimen-
+sion while retaining discrimination via regularization.
+•Backpropagation:The scalarized value and visit
+counts are propagated from the leaf to the root. For ev-
+ery node along the path,N(n)is incremented and statis-
+tics are updated, dynamically guiding the search toward
+paths that are balanced across all reward dimensions.
+Adaptive Ideal Point Update.In our approach, the ideal
+point serves as a running estimate of the best achievable ob-
+jective values observed during the Monte Carlo Tree Search
+(MCTS) process. Rather than being fixed, each ideal-point
+coordinatez ∗
+j is updated to gradually incorporate newly ob-
+served rewards, allowing the ideal point to adapt as the search
+explores better trajectories. Concretely, at each step of the
+MCTS iteration, we update the ideal-point coordinate by
+blending its previous value with the rewardv j obtained from
+the current simulation using an exponential moving average:
+z∗
+j ←(1−λ)z ∗
+j +λ v j,(10)
+where0< λ <1is a smoothing coefficient. controling the
+balance between old and new information: a smallλmakes
+the ideal point change slowly (high inertia), while a larger
+λmakes it track recent rewards more aggressively. For ex-
+ample, ifλ→0the update barely movesz ∗
+j (we retain the
+historical best value), whereasλ→1quickly overrides the
+old ideal with the new reward. Equivalently, one can rewrite
+(10) as
+z∗
+j ←z ∗
+j +λ(v j −z ∗
+j ),(11)
+This update movesz ∗
+j a fractionλof the “error”(v j −z ∗
+j )
+toward the newly observed value. In a Chebyshev-scalarized
+MCTS framework, trajectories are ranked by their Cheby-
+shev scalarized scores with respect to the current reference
+pointz ∗, and the best trajectories are selected accordingly.
+The objective-wise returnsv j of these selected trajectories
+are then used to updatez ∗, allowing it to serve as a global
+reference (utopia) point that adapts as the search progresses.
+
+3.3 Curriculum DPO for Policy Alignment
+After applying the MCTS algorithm, we obtain an ideal point
+z∗ together with a set of candidate trajectories for each input
+sample. The third component then converts these searched
+trajectories into preference data and aligns the policy using
+an easy-to-hard curriculum.
+Score fusion and pair construction.Our method allows us
+to evaluate the overall quality of any reasoning trajectoryY
+via a fused scalar scoreG(Y). Based on this evaluation, pref-
+erence pairs(Y +, Y −)are constructed from the searched tra-
+jectories produced by MCTS, satisfyingG(Y +)−G(Y −)≥
+δ. Giving a reasoning trajectoryY={y (1), y(2), . . . , y(n)},
+we define the trajectory-level reward vectorR traj(Y)∈R M
+as:
+Rtraj(Y) = 1
+n
+nX
+t=1
+Rstep(y(t))(12)
+where eachR step(y(t))represents theM-dimensional reward
+scores (e.g., logical consistency, visual alignment) at stept.
+This definition ensures that the trajectory reward maintains
+the same dimensionality and physical meaning as the step-
+wise rewards. AfterKsimulations, each trajectoryYhas a
+fused score
+¯G(Y) =η g aug(Rtraj(Y)) + (1−η)R ans(Y),(13)
+whereη∈[0,1]is a balancing coefficient.R ans(n)denotes
+the outcome correctness reward, defined as1if the reasoning
+chain at terminal nodenmatches the ground truth answer,
+and0otherwise. For non-terminal nodes,R ans(n)is set to0.
+Finally, given multiple reasoning trajectories sampled for
+the same inputx, we induce preference pairs(Y +, Y −)for
+DPO-style optimization, where the trajectory with a higher
+aggregated score is treated as preferred, i.e.,
+¯G(Y +)− ¯G(Y −)≥δ.(14)
+Warm-up and DPO.Given the constructed preference
+pairs(Y +, Y −)derived from the search process, this stage
+aims to align the policy with step-level reasoning preferences
+through a two-phase training procedure. Specifically, we first
+warm up the policy using supervised fine-tuning (SFT) to sta-
+bilize generation, and then apply Direct Preference Optimiza-
+tion (DPO) to directly optimize the policy toward preferred
+trajectories.
+LSFT(πθ) =−E (x,Y)
+TX
+t=1
+logπ θ(y(t) |x, y (<t)).(15)
+Then we apply DPO with a reference modelπ ref:
+L(θ) =−E x,ˆy<t,(ˆy+,ˆy−)∈V
+
+logσ(F + −F −)
+
+(16)
+where,
+F + =βlog πθ(ˆy+|x; ˆy<t)
+πref(ˆy+|x; ˆy<t) (17)
+F − =βlog πθ(ˆy−|x; ˆy<t)
+πref(ˆy−|x; ˆy<t) (18)
+Difficulty scheduling.We define the difficulty of a reason-
+ing trajectory based on two intuitive factors: its overall re-
+ward quality and its reasoning length.
+A trajectory whose reward vector is closer to the ideal point
+z∗ corresponds to higher overall reward, and is therefore con-
+sidered easier. Similarly, shorter reasoning trajectories gener-
+ally indicate simpler reasoning processes and are also treated
+as easier cases.
+Taking both factors into account, we define the difficulty
+score of a trajectoryYas a linear combination of its normal-
+ized depth and its distance to the ideal point:
+D(Y) =α depth(Y)
+Tmax
++ (1−α) ∥z∗ −R traj(Y)∥ 2√
+M
+,(19)
+whereT max denotes the maximum allowed number of rea-
+soning steps,Mis the number of reward dimensions, and
+Rtraj(Y)represents the aggregated reward vector of trajectory
+Y. TheL 2 distance measures how far the trajectory perfor-
+mance deviates from the ideal point, and dividing by
+√
+M
+normalizes the term to[0,1].
+By construction, a smaller value ofD(Y)indicates an eas-
+ier trajectory, while larger values correspond to harder cases.
+We use this difficulty score to perform curriculum-style diffi-
+culty scheduling during training, prioritizing easier trajecto-
+ries in early stages and gradually incorporating harder ones
+as training progresses.
+Closed-loop training.Searching with the current policy
+yields better-balanced trajectories; these trajectories give us
+preference data with graded difficulty; the updated policy,
+in turn, improves the quality of the search. This closes the
+loop and steadily pushes the model toward high-quality mul-
+timodal reasoning.
+4 Experiment
+4.1 Experimental Setup
+Implementation details
+We employ InternVL-2.5-MPO [Chenet al., 2024b ] as our
+base Vision-Language Model (VLM). The supervised fine-
+tuning is conducted on ShareGPT-step-300K for one epoch.
+Qwen2.5-VL-32B-Instruct is adopted as the backbone of the
+Reward and Criteria Generation Model. The BAAI/bge-en-
+icl model [Leeet al., 2024 ] is used to construct the embedding
+spaceV∈R d, where each element corresponds to a vector
+representation of a generated criterion, and the dimensional-
+ity is set tod= 4096. To organize these criteria at multiple
+granularities, hierarchical clustering is performed using the
+BIRCH algorithm [Zhanget al., 1996 ], resulting in a hier-
+archical structureHover the criterion embeddings. For the
+training time, SFT takes about 9 hours on a single A800 node,
+and three rounds of Curriculum DPO takes about 18 hours in
+total on a 4 * A100 node. We set branch factork= 3for
+a good balance between exploration and computation time.
+We set Search DepthD= 10to limit the search space while
+maintaining adequate coverage of reasoning paths. We empir-
+ically set Reward Parametersη= 0.5,ρ= 0.1, andλ= 0.2
+to optimize reasoning quality while avoiding overfitting to
+any single dimension.
+
+Table 1: Comparison with open-source VLMs. We evaluate our method on six benchmarks covering both general and task-specific reasoning
+capacities. Our CoS has consistently strong performances across these benchmarks, surpassing different baselines and other state-of-the-art
+VLMs by large margins. The items in bold and underlined respectively represent the first or second highest scores.
+Method Size MathVista MMStar MMMU M3CoT AI2D ChartQA Average
+LLaV A-1.5[Liuet al., 2024a ] 13B 27.6 32.8 - 39.5 - - -
+IXC-2.5 [Zhanget al., 2024a ] 7B 63.7 59.9 42.9 - 81.5 82.2 -
+Ovis1.5-LLaMA3 [Luet al., 2024 ] 8B 63.0 57.3 48.3 - - 76.4 -
+LLaV A-CoT[Xuet al., 2025 ] 11B 54.8 57.6 - - 78.7 - -
+LlamaV-o1 [Thawakaret al., 2025 ] 11B 54.4 59.5 - - 81.2 - -
+Vision-R1-LlamaV [Huanget al., 2025 ] 11B 62.7 61.4 - - - 83.9 -
+R1-VL [Zhanget al., 2025a ] 7B 63.5 60.0 - - - 83.9 -
+R1-Onevision [Yanget al., 2025 ] 7B 64.1 - - - - - -
+MiniCPM-V-2-6 [Yaoet al., 2024b ] 8B 60.6 57.5 49.8 56.0 82.1 79.4 64.2
+LLaV A-OneVision[Liet al., 2024 ] 7B 63.2 61.7 48.8 52.3 81.4 80.0 64.6
+Qwen2-VL [Wanget al., 2024c ] 7B 58.2 60.7 53.7 57.8 83.0 77.4 65.1
+Insight-V [Donget al., 2025 ] 7B 59.9 61.5 50.2 61.5 79.8 81.5 65.7
+InternVL-2.5 [Chenet al., 2024b ] 8B 62.2 59.6 54.1 62.4 84.5 84.9 68.0
+LLaV A-NeXT-LLaMA3[Liuet al., 2024b ] 8B 45.9 43.1 36.9 45.6 71.5 69.4 52.1
+LLaV A-NeXT-LLaMA3 + SFT 8B 51.4 54.7 39.6 67.4 76.1 75.7 60.8
+InternVL2.5-MPO [Wanget al., 2024d ] 8B 65.0 60.7 53.8 67.5 84.2 85.0 69.4
+InternVL2.5-MPO + SFT 8B 65.9 61.0 53.7 75.7 81.688.371.0
+MMS-PRM 8B67.5 65.2 54.2 79.7 84.287.273.0
+Benchmarks
+We evaluate our method on several representative bench-
+marks, spanning a wide range of tasks that demand complex
+multimodal reasoning abilities. For most of these bench-
+marks, performance is measured by accuracy (or relaxed
+accuracy)—i.e., the ratio of correct predictions to total ex-
+amples—unless specified otherwise. MathVista [Yueet al.,
+2024a] is a well-known benchmark for multimodal mathe-
+matical reasoning, focusing on tasks such as plane geometry,
+functions, and visual puzzles. MMMU [Yueet al., 2024b ]
+evaluates multimodal reasoning across diverse university-
+level disciplines. ChartQA [Masryet al., 2022 ] aims to as-
+sess logical and numerical reasoning over chart-based visual
+data. MMStar [Chenet al., 2024a ] focuses on diverse multi-
+modal problems that require fine-grained visual understand-
+ing. M3CoT [Shaoet al., 2024 ] evaluates multimodal chain-
+of-thought reasoning capabilities. AI2D [Kembhaviet al.,
+2016] is designed to test scientific diagram understanding and
+reasoning.
+4.2 Main Results
+Table 1 reports the comparison between MMS-PRM and
+state-of-the-art open-source VLMs across six multimodal
+reasoning benchmarks. Our method consistently perfor-
+mance gains across the majority of benchmarks Starting
+from InternVL2.5-MPO, supervised fine-tuning yields lim-
+ited gains, indicating that performance is close to satura-
+tion under standard training. In contrast, introducing MMS-
+PRM leads to consistent improvements across all bench-
+marks, demonstrating the effectiveness of search-enhanced,
+multi-dimensional process supervision beyond conventional
+SFT. The gains are particularly pronounced on reasoning-
+intensive benchmarks such as M3CoT and MathVista, which
+require long-horizon, multi-step reasoning. This suggests that
+MMS-PRM is especially effective at refining complex multi-
+modal reasoning behaviors rather than optimizing for final-
+answer correctness alone.
+Overall, these results show that explicitly balancing multi-
+ple reward dimensions at the process level remains a powerful
+mechanism for improving strong vision-language models.
+4.3 Efficiency and Generalization Analysis
+To further validate the practicality of MMS-PRM, we com-
+pare it against state-of-the-art multimodal PRMs that re-
+quire extensive supervised fine-tuning. As shown in Table 2,
+while training-based methods such as Visual-PRM and SVIP
+achieve slightly superior accuracy by optimizing billions of
+parameters on large-scale step-level datasets, MMS-PRM re-
+mains highly competitive despite utilizing a training-free re-
+ward mechanism. This design avoids the need for train-
+ing a separate reward model, distinguishing it from base-
+lines that require optimizing billions of parameters for step-
+level supervision. The minor performance trade-off is signif-
+icantly offset by our model’s superior deployment efficiency
+and its robust generalization across diverse benchmarks, as it
+avoids the risk of overfitting to specific training distributions
+or reward hacking. Consequently, MMS-PRM offers a more
+resource-efficient and scalable paradigm for real-world mul-
+timodal reasoning.
+4.4 Ablation Study
+We perform ablation studies on the M3CoT validation set
+to analyze the contribution of each component in MMS-
+PRM. As shown in Table 3, introducing the hierarchical fine-
+grained process rewards consistently improves the SFT base-
+line, indicating the effectiveness of step-level supervision for
+multimodal reasoning. Further incorporating reward-guided
+Chebyshev MCTS leads to additional gains, demonstrating
+
+Table 2: Comparison with state-of-the-art multimodal PRMs. Our
+method achieves competitive performance using a training-free pro-
+cess reward model, whereas baselines require extensive supervision
+to train their reward models.
+Method PRM Trainable Params MathVista MMMU
+Visual-PRM 7B 68.5 60.2
+SVIP 7B 61.6 61.3
+URSA 8B 64.9 -
+VL-PRM300K 8B 65.7 56.5
+MMS-PRM 0M67.5 54.2
+Table 3: Ablation study results on the M3CoT validation set.
+Configuration Acc. (%)
+Baseline (SFT) 67.4
++ Hierarchical reward 70.1
++ Reward + Chebyshev MCTS 73.6
+MMS-PRM (full)79.7
+DPO only (w/o MCTS) 71.2
+Weighted-sum MCTS 75.3
+that explicitly searching for balanced reasoning trajectories
+is more effective than direct optimization. Compared with
+weighted-sum MCTS, Chebyshev scalarization achieves bet-
+ter performance, suggesting that penalizing the weakest re-
+ward dimension is crucial for multimodal reasoning. Finally,
+the full MMS-PRM framework, which combines hierarchi-
+cal rewards, Chebyshev MCTS, and curriculum-style DPO,
+achieves the best performance. In contrast, removing MCTS
+and applying DPO alone results in a noticeable drop, high-
+lighting the necessity of search-based trajectory optimization.
+4.5 Impact of Reward Count
+We further investigate the impact of supervision density by
+analyzing the average reward counts. In this experiment, we
+control the density of process supervision by explicitly con-
+straining the number of output rewards in the prompt pro-
+vided to the criteria generation model. Specifically, we ad-
+just the instructions to request a varying number of crite-
+ria—ranging from a strict constraint (e.g., ”output only the
+single most critical criterion”) to a relaxed setting that en-
+courages generating comprehensive criteria across multiple
+dimensions. As shown in Table 4, the reasoning performance
+consistently improves as the average number of activated pro-
+cess rewards increases from 1.0 to 4.22. Here, the average
+values are induced by prompt-level constraints on the num-
+ber of generated criteria (e.g., exactly 1, 1–3,≤5, and 3–5),
+rather than being directly set. This trend indicates that MMS-
+PRM benefits significantly from joint multi-dimensional con-
+straints.
+4.6 Worst-Dimension Analysis
+We analyze the minimum reward dimensionv min = minj vj
+of final trajectories generated by Chebyshev-guided MCTS
+and weighted-sum MCTS under identical rollout budgets and
+Avg Rewards / Step MathVista M3CoT ChartQA Avg.
+1.0 65.8 74.1 86.4 74.8
+2.1 66.9 76.3 87.1 76.1
+3.4 68.2 78.888.477.8
+4.270.1 79.787.279.6
+Table 4: Effect of reward dimensionality measured by the average
+number of activated rewards per reasoning step.
+reward models. As shown in Figure 3, Chebyshev scalariza-
+tion consistently shifts the distribution ofv min toward higher
+values, indicating that the weakest reward dimension is sig-
+nificantly improved. In contrast, weighted-sum MCTS ex-
+hibits a heavier tail in the low-v min region, suggesting that
+severe failures in individual dimensions can be masked by
+strong performance in others. This confirms that Chebyshev-
+based optimization effectively enforces balanced multimodal
+reasoning by penalizing worst-dimension collapse rather than
+allowing compensation across dimensions.
+Figure 3: Distribution of the minimum reward dimensionv min
+across reasoning trajectories
+5 Conclusion
+This paper introduced MMS-PRM, which replaces superficial
+scalar rewards with fine-grained, multi-dimensional supervi-
+sion via Chebyshev-scalarized MCTS. By integrating trajec-
+tory optimization with curriculum alignment, our framework
+effectively balances visual and logical reasoning, achieving
+competitive results and robust generalization. These findings
+highlight the critical role of structured process rewards and
+search mechanisms in advancing reliable, interpretable mul-
+timodal reasoning.
+References
+[Chenet al., 2024a ] Lin Chen, Jinsong Li, Xiaoyi Dong, Pan
+Zhang, Yuhang Zang, Zehui Chen, Haodong Duan, Jiaqi
+Wang, Yu Qiao, Dahua Lin, et al. Are we on the right way
+for evaluating large vision-language models?Advances in
+
+Neural Information Processing Systems, 37:27056–27087,
+2024.
+[Chenet al., 2024b ] Zhe Chen, Weiyun Wang, Yue Cao,
+Yangzhou Liu, Zhangwei Gao, Erfei Cui, Jinguo Zhu,
+Shenglong Ye, Hao Tian, Zhaoyang Liu, et al. Expanding
+performance boundaries of open-source multimodal mod-
+els with model, data, and test-time scaling.arXiv preprint
+arXiv:2412.05271, 2024.
+[Denget al., 2024 ] Linger Deng, Yuliang Liu, Bohan Li,
+Dongliang Luo, Liang Wu, Chengquan Zhang, Pengyuan
+Lyu, Ziyang Zhang, Gang Zhang, Errui Ding, et al. R-cot:
+Reverse chain-of-thought problem generation for geomet-
+ric reasoning in large multimodal models.arXiv e-prints,
+pages arXiv–2410, 2024.
+[Donget al., 2024 ] Guanting Dong, Chenghao Zhang,
+Mengjie Deng, Yutao Zhu, Zhicheng Dou, and Ji-Rong
+Wen. Progressive multimodal reasoning via active
+retrieval.arXiv preprint arXiv:2412.14835, 2024.
+[Donget al., 2025 ] Yuhao Dong, Zuyan Liu, Hai-Long Sun,
+Jingkang Yang, Winston Hu, Yongming Rao, and Ziwei
+Liu. Insight-v: Exploring long-chain visual reasoning
+with multimodal large language models. InProceedings
+of the Computer Vision and Pattern Recognition Confer-
+ence, pages 9062–9072, 2025.
+[Gaoet al., 2025 ] Minghe Gao, Xuqi Liu, Zhongqi Yue,
+Yang Wu, Shuang Chen, Juncheng Li, Siliang Tang, Fei
+Wu, Tat-Seng Chua, and Yueting Zhuang. Benchmarking
+multimodal cot reward model stepwise by visual program.
+arXiv preprint arXiv:2504.06606, 2025.
+[Guanet al., 2025 ] Xinyu Guan, Li Lyna Zhang, Yifei Liu,
+Ning Shang, Youran Sun, Yi Zhu, Fan Yang, and Mao
+Yang. rstar-math: Small llms can master math rea-
+soning with self-evolved deep thinking.arXiv preprint
+arXiv:2501.04519, 2025.
+[Huanget al., 2025 ] Wenxuan Huang, Bohan Jia, Zijie Zhai,
+Shaosheng Cao, Zheyu Ye, Fei Zhao, Zhe Xu, Yao Hu, and
+Shaohui Lin. Vision-r1: Incentivizing reasoning capabil-
+ity in multimodal large language models.arXiv preprint
+arXiv:2503.06749, 2025.
+[Kembhaviet al., 2016 ] Aniruddha Kembhavi, Mike Sal-
+vato, Eric Kolve, Minjoon Seo, Hannaneh Hajishirzi, and
+Ali Farhadi. A diagram is worth a dozen images. InEuro-
+pean Conference on Computer Vision (ECCV), pages 235–
+251, 2016.
+[Leeet al., 2024 ] Chankyu Lee, Rajarshi Roy, Mengyao Xu,
+Jonathan Raiman, Mohammad Shoeybi, Bryan Catanzaro,
+and Wei Ping. Nv-embed: Improved techniques for train-
+ing llms as generalist embedding models.arXiv preprint
+arXiv:2405.17428, 2024.
+[Liet al., 2024 ] Bo Li, Yuanhan Zhang, Dong Guo, Ren-
+rui Zhang, Feng Li, Hao Zhang, Kaichen Zhang, Peiyuan
+Zhang, Yanwei Li, Ziwei Liu, et al. Llava-onevision: Easy
+visual task transfer.arXiv preprint arXiv:2408.03326,
+2024.
+[Lightmanet al., 2023 ] Hunter Lightman, Vineet Kosaraju,
+Yuri Burda, Harrison Edwards, Bowen Baker, Teddy
+Lee, Jan Leike, John Schulman, Ilya Sutskever, and Karl
+Cobbe. Let’s verify step by step. InThe Twelfth Interna-
+tional Conference on Learning Representations, 2023.
+[Liuet al., 2024a ] Haotian Liu, Chunyuan Li, Yuheng Li,
+and Yong Jae Lee. Improved baselines with visual instruc-
+tion tuning. InProceedings of the IEEE/CVF conference
+on computer vision and pattern recognition, pages 26296–
+26306, 2024.
+[Liuet al., 2024b ] Haotian Liu, Chunyuan Li, Yuheng Li,
+Bo Li, Yuanhan Zhang, Sheng Shen, and Yong Jae Lee.
+Llavanext: Improved reasoning, ocr, and world knowl-
+edge, 2024.
+[Luet al., 2024 ] Shiyin Lu, Yang Li, Qing-Guo Chen, Zhao
+Xu, Weihua Luo, Kaifu Zhang, and Han-Jia Ye. Ovis:
+Structural embedding alignment for multimodal large lan-
+guage model.arXiv preprint arXiv:2405.20797, 2024.
+[Luoet al., 2024 ] Liangchen Luo, Yinxiao Liu, Rosanne
+Liu, Samrat Phatale, Meiqi Guo, Harsh Lara, Yunxuan Li,
+Lei Shu, Yun Zhu, Lei Meng, et al. Improve mathemat-
+ical reasoning in language models by automated process
+supervision.arXiv preprint arXiv:2406.06592, 2024.
+[Luoet al., 2025 ] Ruilin Luo, Zhuofan Zheng, Yifan Wang,
+Xinzhe Ni, Zicheng Lin, Songtao Jiang, Yiyao Yu, Chufan
+Shi, Ruihang Chu, Jin Zeng, et al. Ursa: Understanding
+and verifying chain-of-thought reasoning in multimodal
+mathematics.arXiv preprint arXiv:2501.04686, 2025.
+[Masryet al., 2022 ] Ahmed Masry, Do Long, Jia Tan, and
+Shafiq Joty. Chartqa: A benchmark for question answering
+about charts with visual and logical reasoning. InFindings
+of the Association for Computational Linguistics: ACL,
+pages 2263–2279, 2022.
+[Onget al., 2025 ] Brandon Ong, Tej Deep Pala, Vernon Toh,
+William Chandra Tjhi, and Soujanya Poria. Training
+vision-language process reward models for test-time scal-
+ing in multimodal reasoning: Key insights and lessons
+learned.arXiv preprint arXiv:2509.23250, 2025.
+[Qiet al., 2024 ] Zhenting Qi, Mingyuan Ma, Jiahang Xu,
+Li Lyna Zhang, Fan Yang, and Mao Yang. Mutual reason-
+ing makes smaller llms stronger problem-solvers.arXiv
+preprint arXiv:2408.06195, 2024.
+[Shaoet al., 2024 ] Hao Shao, Shengju Qian, Han Xiao,
+Guanglu Song, Zhuofan Zong, Letian Wang, Yu Liu, and
+Hongsheng Li. Visual cot: Advancing multi-modal lan-
+guage models with a comprehensive dataset and bench-
+mark for chain-of-thought reasoning.Advances in Neural
+Information Processing Systems, 37:8612–8642, 2024.
+[Snellet al., 2024 ] Charlie Snell, Jaehoon Lee, Kelvin Xu,
+and Aviral Kumar. Scaling llm test-time compute opti-
+mally can be more effective than scaling model parame-
+ters.arXiv preprint arXiv:2408.03314, 2024.
+[Thawakaret al., 2025 ] Omkar Thawakar, Dinura Dis-
+sanayake, Ketan Pravin More, Ritesh Thawkar, Ahmed
+Heakl, Noor Ahsan, Yuhao Li, Ilmuz Zaman Mohammed
+
+Zumri, Jean Lahoud, Rao Muhammad Anwer, et al.
+Llamav-o1: Rethinking step-by-step visual reasoning in
+llms. InFindings of the Association for Computational
+Linguistics: ACL 2025, pages 24290–24315, 2025.
+[Wanget al., 2024a ] Ke Wang, Junting Pan, Weikang Shi,
+Zimu Lu, Mingjie Zhan, and Hongsheng Li. Measur-
+ing multimodal mathematical reasoning with math-vision
+dataset.arXiv preprint arXiv:2402.14804, 2024.
+[Wanget al., 2024b ] Peiyi Wang, Lei Li, Zhihong Shao,
+Runxin Xu, Damai Dai, Yifei Li, Deli Chen, Yu Wu, and
+Zhifang Sui. Math-shepherd: Verify and reinforce llms
+step-by-step without human annotations. InProceedings
+of the 62nd Annual Meeting of the Association for Compu-
+tational Linguistics (V olume 1: Long Papers), pages 9426–
+9439, 2024.
+[Wanget al., 2024c ] Peng Wang, Shuai Bai, Sinan Tan, Shi-
+jie Wang, Zhihao Fan, Jinze Bai, Keqin Chen, Xuejing
+Liu, Jialin Wang, Wenbin Ge, et al. Qwen2-vl: Enhanc-
+ing vision-language model’s perception of the world at any
+resolution.arXiv preprint arXiv:2409.12191, 2024.
+[Wanget al., 2024d ] Weiyun Wang, Zhe Chen, Wenhai
+Wang, Yue Cao, Yangzhou Liu, Zhangwei Gao, Jinguo
+Zhu, Xizhou Zhu, Lewei Lu, Yu Qiao, et al. Enhancing
+the reasoning ability of multimodal large language mod-
+els via mixed preference optimization.arXiv preprint
+arXiv:2411.10442, 2024.
+[Wanget al., 2024e ] Zihan Wang, Yunxuan Li, Yuexin Wu,
+Liangchen Luo, Le Hou, Hongkun Yu, and Jingbo Shang.
+Multi-step problem solving through a verifier: An empiri-
+cal analysis on model-induced process supervision.arXiv
+preprint arXiv:2402.02658, 2024.
+[Wanget al., 2025 ] Weiyun Wang, Zhangwei Gao, Lianjie
+Chen, Zhe Chen, Jinguo Zhu, Xiangyu Zhao, Yangzhou
+Liu, Yue Cao, Shenglong Ye, Xizhou Zhu, et al. Visual-
+prm: An effective process reward model for multimodal
+reasoning.arXiv preprint arXiv:2503.10291, 2025.
+[Weiet al., 2022 ] Jason Wei, Xuezhi Wang, Dale Schuur-
+mans, Maarten Bosma, Fei Xia, Ed Chi, Quoc V Le,
+Denny Zhou, et al. Chain-of-thought prompting elicits
+reasoning in large language models.Advances in neural
+information processing systems, 35:24824–24837, 2022.
+[Wuet al., 2024 ] Jinyang Wu, Mingkuan Feng, Shuai
+Zhang, Feihu Che, Zengqi Wen, and Jianhua Tao.
+Beyond examples: High-level automated reasoning
+paradigm in in-context learning via mcts.arXiv preprint
+arXiv:2411.18478, 2024.
+[Xuet al., 2025 ] Guowei Xu, Peng Jin, Ziang Wu, Hao Li,
+Yibing Song, Lichao Sun, and Li Yuan. Llava-cot: Let vi-
+sion language models reason step-by-step. InProceedings
+of the IEEE/CVF International Conference on Computer
+Vision, pages 2087–2098, 2025.
+[Yanget al., 2025 ] Yi Yang, Xiaoxuan He, Hongkun Pan,
+Xiyan Jiang, Yan Deng, Xingtao Yang, Haoyu Lu,
+Dacheng Yin, Fengyun Rao, Minfeng Zhu, et al. R1-
+onevision: Advancing generalized multimodal reason-
+ing through cross-modal formalization.arXiv preprint
+arXiv:2503.10615, 2025.
+[Yaoet al., 2024a ] Huanjin Yao, Jiaxing Huang, Wenhao
+Wu, Jingyi Zhang, Yibo Wang, Shunyu Liu, Yingjie Wang,
+Yuxin Song, Haocheng Feng, Li Shen, et al. Mulberry:
+Empowering mllm with o1-like reasoning and reflection
+via collective monte carlo tree search.arXiv preprint
+arXiv:2412.18319, 2024.
+[Yaoet al., 2024b ] Yuan Yao, Tianyu Yu, Ao Zhang,
+Chongyi Wang, Junbo Cui, Hongji Zhu, Tianchi Cai,
+Haoyu Li, Weilin Zhao, Zhihui He, et al. Minicpm-
+v: A gpt-4v level mllm on your phone.arXiv preprint
+arXiv:2408.01800, 2024.
+[Yueet al., 2024a ] Xiang Yue, Yuansheng Ni, Kai Zhang,
+Tianyu Zheng, Ruoqi Liu, Ge Zhang, Samuel Stevens,
+Dongfu Jiang, Weiming Ren, Yuxuan Sun, et al.
+Mathvista: Evaluating mathematical reasoning of foun-
+dation models in visual contexts.arXiv preprint
+arXiv:2402.14804, 2024.
+[Yueet al., 2024b ] Xiang Yue, Yuansheng Ni, Kai Zhang,
+Tianyu Zheng, Ruoqi Liu, Ge Zhang, Samuel Stevens,
+Dongfu Jiang, Weiming Ren, Yuxuan Sun, et al. Mmmu:
+A massive multi-discipline multimodal understanding and
+reasoning benchmark for expert agi. InProceedings of
+the IEEE/CVF Conference on Computer Vision and Pat-
+tern Recognition, pages 9556–9567, 2024.
+[Zhanget al., 1996 ] Tian Zhang, Raghu Ramakrishnan, and
+Miron Livny. Birch: an efficient data clustering method for
+very large databases.ACM sigmod record, 25(2):103–114,
+1996.
+[Zhanget al., 2024a ] Pan Zhang, Xiaoyi Dong, Yuhang
+Zang, Yuhang Cao, Rui Qian, Lin Chen, Qipeng Guo,
+Haodong Duan, Bin Wang, Linke Ouyang, et al. Internlm-
+xcomposer-2.5: A versatile large vision language model
+supporting long-contextual input and output.arXiv
+preprint arXiv:2407.03320, 2024.
+[Zhanget al., 2024b ] Renrui Zhang, Xinyu Wei, Dongzhi
+Jiang, Ziyu Guo, Shicheng Li, Yichi Zhang, Chengzhuo
+Tong, Jiaming Liu, Aojun Zhou, Bin Wei, et al. Mavis:
+Mathematical visual instruction tuning with an automatic
+data engine.arXiv preprint arXiv:2407.08739, 2024.
+[Zhanget al., 2025a ] Jingyi Zhang, Jiaxing Huang, Huanjin
+Yao, Shunyu Liu, Xikun Zhang, Shijian Lu, and Dacheng
+Tao. R1-vl: Learning to reason with multimodal large lan-
+guage models via step-wise group relative policy optimiza-
+tion.arXiv preprint arXiv:2503.12937, 2025.
+[Zhanget al., 2025b ] Ruohong Zhang, Bowen Zhang, Yang-
+hao Li, Haotian Zhang, Zhiqing Sun, Zhe Gan, Yinfei
+Yang, Ruoming Pang, and Yiming Yang. Improve vi-
+sion language model chain-of-thought reasoning. InPro-
+ceedings of the 63rd Annual Meeting of the Association
+for Computational Linguistics (V olume 1: Long Papers),
+pages 1631–1662, 2025.
+
+6 Supplementary Material
+6.1 Prompt Details
+To support the hierarchical and fine-grained reward construc-
+tion described in Section 3.1, we explicitly design two types
+of prompts: a criteria generation prompt and a criteria selec-
+tion prompt. These prompts operationalize the abstract re-
+ward modeling framework into concrete, executable proce-
+dures that can be reliably applied at scale.
+The criteria generation prompt is responsible for mapping a
+set of low-level, semantically related evaluation criteria into
+a concise, interpretable cluster name. This step corresponds
+to the embedding and hierarchical clustering stage of the re-
+ward space construction, where multiple fine-grained signals
+are abstracted into higher-level reward dimensions. By con-
+straining the output to a short academic-style phrase and en-
+forcing a strict JSON format, we ensure both semantic clarity
+and downstream parsability.
+The criteria selection prompt serves as a strict step-level judge
+that assigns scores to reasoning steps using only the activated
+reward criteria. It enforces non-compensatory supervision
+by requiring the evaluator to explicitly penalize hallucina-
+tions, logical gaps, and unsupported claims, even when par-
+tial progress is made. The calibration rules and selection con-
+straints are designed to avoid score inflation and to preserve
+meaningful variance across reward dimensions, which is cru-
+cial for the worst-dimension optimization strategy adopted in
+MMS-PRM.
+Together, these prompts instantiate the dynamic reward allo-
+cation mechanism described in the main paper, enabling con-
+sistent step-level evaluation across heterogeneous multimodal
+reasoning trajectories.
+Criteria Generation Prompt:
+You are a cluster naming assistant for visual reasoning
+reward categories.
+Summarize the common theme across the given child
+category names into a short English cluster name.
+Prefer precise, academic-style vocabulary such as
+Logical Consistency, Mathematical Manipulation,
+Conceptual Understanding, Reasoning Accuracy, Visual
+Recognition Correctness, Temporal Reasoning, Spatial
+Understanding.
+Output STRICT JSON only: ”name”: ”¡cluster name¿”.
+Criteria Selection Prompt:
+You are a strict step-level judge for math and diagram
+reasoning.
+Given the candidate reasoning step below, evaluate it
+using ONLY criteria from the CANDIDATE LIST.
+Calibration (use the full 1–10 range):
+1–2: off-topic, hallucinated, or contradicts known facts.
+3–4: clear error(s) or unjustified leap; harms solution.
+5: neutral restatement/setup with no measurable
+progress.
+6–7: minor progress with issue(s) or unverifiable
+claim(s).
+8: solid, correct progress; improves solution measurably.
+9–10: exceptional, critical progress; precise, verified,
+and necessary.
+Guidelines:
+Prefer criteria that directly match the step content.
+Penalize fillers, repetition, vague statements, and unsup-
+ported claims.
+If any error/irrelevance/contradiction exists, reflect it in
+at least one low score.
+Avoid clustering all scores between 7–9 unless the step
+is truly excellent.
+Selection:
+From the CANDIDATE LIST, choose between 3 and 5
+of the MOST relevant criteria.
+If the selected reward criteria are too coarse-grained or
+not fully applicable, you should generate more specific
+fine-grained process reward criteria and justify your
+choice.
+Final output requirements:
+Produce a single final line listing the chosen criteria and
+their scores.
+Format strictly as: Criterion A: [[X]] – Criterion B:
+[[Y]] – ...
+Use ’ – ’ to separate multiple criteria.
+[[...]]MUST appear only in the final line; no extra text.
+6.2 Curriculum DPO Implementation
+Algorithm 1 provides a concrete implementation of the
+curriculum-style Direct Preference Optimization (DPO) pro-
+cedure introduced in Section 3.3. While the main paper fo-
+cuses on the conceptual design of difficulty-aware alignment,
+the supplementary algorithm details how difficulty scores are
+computed from MCTS trajectories and how they are inte-
+grated into the training loop.
+Specifically, the algorithm consists of two stages. In the
+offline difficulty construction stage, final reasoning trajecto-
+ries obtained from Chebyshev-guided MCTS are decomposed
+into prefixes, from which both trajectory depth and multi-
+dimensional reward statistics are collected. These statistics
+are then combined to compute a normalized difficulty score
+that jointly reflects reasoning length and deviation from the
+current ideal point.
+In the curriculum-aware DPO training stage, preference pairs
+are progressively exposed to the policy according to their dif-
+ficulty ranking. Early training focuses on short, high-quality
+
+Algorithm 1Curriculum DPO with MCTS-based Difficulty
+Require:MCTS node trajectories, DPO datasetD dpo, diffi-
+culty weightα, curriculum range[γ start, γend]
+Ensure:Trained policyπ θ
+1:Stage 1: Offline Difficulty Construction
+2:foreach final reasoning trajectoryRin MCTS logsdo
+3:Collect intermediate nodes whose reasoning prefix
+matchesR
+4:Compute maximum depth:d(R)←max t dt
+5:Compute trajectory reward:R traj(R)← 1
+T
+PT
+t=1 st
+6:end for
+7:Compute global statistics:
+8:T max ←max R d(R)
+9:z ⋆ ← 1
+N
+P
+R Rtraj(R)
+10:foreach DPO sample with chosen responseRdo
+11:Compute difficulty score:
+12:difficulty(R)←α· d(R)
+Tmax
++ (1−α)· ∥Rtraj(R)−z⋆∥2√
+M
+13:Attach difficulty to the DPO sample
+14:end for
+15:Stage 2: Curriculum-aware DPO Training
+16:Sort all DPO samples by ascending difficulty
+17:LetD sorted ={x (1), . . . , x(K) }
+18:fortraining stept= 1toTdo
+19:Compute training progress:p←min(1, t/T)
+20:Determine allowed difficulty fraction:γ(p)←γ start +
+p(γend −γ start)
+21:Compute visible set size:k←max(1,⌊γ(p)·K⌋)
+22:Define visible curriculum subset:D vis ←
+{x(1), . . . , x(k)}
+23:Sample a preference pair(x, y +, y−)fromD vis
+24:Updateπ θ using standard DPO loss
+25:end for
+trajectories, while later stages gradually introduce longer and
+more challenging reasoning chains

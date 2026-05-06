@@ -18,53 +18,6 @@ Existing process reward models often compress multiple reasoning-quality dimensi
 
 To address this issue, we propose **MMS-PRM**, a multimodal process reward framework that optimizes reasoning trajectories with explicit attention to the **worst-performing reward dimension**. Instead of rewarding average quality, MMS-PRM encourages balanced, non-compensatory reasoning paths where every activated dimension must remain reliable.
 
-## Highlights
-
-- **Worst-dimension optimization**: MMS-PRM prevents strong dimensions from masking failures in weaker dimensions.
-- **Hierarchical fine-grained reward space**: Multimodal reasoning quality is decomposed into interpretable reward dimensions and sub-dimensions.
-- **Chebyshev-guided MCTS**: Search is guided by augmented Chebyshev scalarization, prioritizing the weakest active dimension during trajectory exploration.
-- **Curriculum-style DPO**: Preference alignment progressively transfers search-discovered balanced reasoning behaviors into the policy.
-- **Strong multimodal reasoning performance**: MMS-PRM achieves consistent gains across multiple multimodal reasoning benchmarks.
-
-## Method Overview
-
-MMS-PRM consists of three main components:
-
-### 1. Hierarchical Fine-Grained Reward Space
-
-We construct a structured reward space to evaluate multimodal reasoning at the step level. Instead of assigning a single global score to each reasoning step, MMS-PRM activates multiple relevant reward dimensions according to the current reasoning context.
-
-These dimensions may include, but are not limited to:
-
-- Visual grounding
-- Logical consistency
-- Semantic correctness
-- Stepwise coherence
-- Geometric or mathematical validity
-- Conciseness and relevance
-
-This design enables more precise supervision and makes it possible to identify specific reasoning weaknesses that scalar rewards may overlook.
-
-### 2. Dynamic Reward-Guided Chebyshev MCTS
-
-MMS-PRM formulates trajectory search as a multi-objective optimization problem. During Monte Carlo Tree Search, each candidate reasoning step receives a multi-dimensional reward vector.
-
-To select balanced reasoning paths, MMS-PRM applies augmented Chebyshev scalarization. This mechanism gives priority to the worst-performing reward dimension, reducing the risk that a reasoning trajectory with strong average performance but a critical hidden failure will be selected.
-
-The search process includes:
-
-- **Selection**: Choose promising partial trajectories using reward-aware UCT.
-- **Expansion**: Sample candidate next reasoning steps from the current policy.
-- **Evaluation**: Score candidates using fine-grained multi-dimensional process rewards.
-- **Backpropagation**: Update search statistics to guide future trajectory exploration.
-
-### 3. Curriculum DPO for Policy Alignment
-
-After search, MMS-PRM converts the discovered trajectories into preference pairs and aligns the policy using Direct Preference Optimization.
-
-To stabilize learning, MMS-PRM introduces a curriculum strategy. Easier trajectories, typically shorter and closer to the ideal reward point, are used earlier in training. Harder and longer reasoning chains are gradually introduced as training progresses.
-
-This closed-loop process allows the model to improve from search-discovered balanced reasoning behaviors while progressively learning more complex multimodal reasoning patterns.
 
 ## Model and Training Setup
 
@@ -118,14 +71,6 @@ We conduct ablation studies on the M3CoT validation set to analyze the contribut
 | **MMS-PRM (full)** | **79.7** |
 
 The full MMS-PRM framework achieves the best performance, showing that hierarchical rewards, Chebyshev-guided search, and curriculum-style DPO are complementary. Compared with weighted-sum MCTS, Chebyshev-guided MCTS better prevents weak-dimension collapse by explicitly emphasizing the lowest-performing reward dimension.
-
-
-
-## Why Worst-Dimension Optimization Matters
-
-In multimodal reasoning, a trajectory can appear fluent and logically structured while still relying on incorrect visual assumptions. Scalar reward models may assign high scores to such trajectories because the strong dimensions compensate for weaker ones.
-
-MMS-PRM avoids this issue by emphasizing the weakest active dimension. This encourages the model to produce reasoning chains that are not only fluent but also visually grounded, logically coherent, and semantically valid.
 
 ## Usage
 

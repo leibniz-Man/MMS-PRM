@@ -18,6 +18,15 @@ Existing process reward models often compress multiple reasoning-quality dimensi
 
 To address this issue, we propose **MMS-PRM**, a multimodal process reward framework that optimizes reasoning trajectories with explicit attention to the **worst-performing reward dimension**. Instead of rewarding average quality, MMS-PRM encourages balanced, non-compensatory reasoning paths where every activated dimension must remain reliable.
 
+## TODO
+
+- [x] Method design
+- [x] Main experiments
+- [x] Ablation studies
+- [ ] Code release
+- [ ] Training scripts
+- [ ] Evaluation scripts
+- [ ] Model checkpoints
 
 ## Model and Training Setup
 
@@ -89,16 +98,6 @@ Example usage commands will be added after code cleanup.
 ```bash
 # Coming soon
 ```
-
-## TODO
-
-- [x] Method design
-- [x] Main experiments
-- [x] Ablation studies
-- [ ] Code release
-- [ ] Training scripts
-- [ ] Evaluation scripts
-- [ ] Model checkpoints
 
 ## Citation
 

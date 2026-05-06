@@ -1,0 +1,1533 @@
+{
+  "mode": "all",
+  "num_leaves": 1042,
+  "root": {
+    "name": "root",
+    "children": [
+      {
+        "name": "cluster_65",
+        "size": 1,
+        "children": [
+          {
+            "name": "Behavioral Context Analysis"
+          }
+        ]
+      },
+      {
+        "name": "cluster_119",
+        "size": 3,
+        "children": [
+          {
+            "name": "Accessory Function Analysis"
+          },
+          {
+            "name": "Clear Conclusion"
+          },
+          {
+            "name": "Irrelevant Detail Focus"
+          }
+        ]
+      },
+      {
+        "name": "cluster_4",
+        "size": 2,
+        "children": [
+          {
+            "name": "Activity Context Analysis"
+          },
+          {
+            "name": "Faulty Conclusion"
+          }
+        ]
+      },
+      {
+        "name": "cluster_47",
+        "size": 2,
+        "children": [
+          {
+            "name": "Absence Analysis"
+          },
+          {
+            "name": "Partial Reasoning"
+          }
+        ]
+      },
+      {
+        "name": "cluster_50",
+        "size": 2,
+        "children": [
+          {
+            "name": "Age Deduction"
+          },
+          {
+            "name": "Option Evaluation"
+          }
+        ]
+      },
+      {
+        "name": "cluster_64",
+        "size": 4,
+        "children": [
+          {
+            "name": "Assumptive Reasoning"
+          },
+          {
+            "name": "Contextual Analysis"
+          },
+          {
+            "name": "Inconsistent Reasoning"
+          },
+          {
+            "name": "Surface-Level Observation"
+          }
+        ]
+      },
+      {
+        "name": "cluster_1",
+        "size": 4,
+        "children": [
+          {
+            "name": "Accurate Timing"
+          },
+          {
+            "name": "Error Checking"
+          },
+          {
+            "name": "Logical Setup"
+          },
+          {
+            "name": "Repetition"
+          }
+        ]
+      },
+      {
+        "name": "cluster_60",
+        "size": 1,
+        "children": [
+          {
+            "name": "Animal Interaction Analysis"
+          }
+        ]
+      },
+      {
+        "name": "cluster_70",
+        "size": 5,
+        "children": [
+          {
+            "name": "Comprehensive Observation"
+          },
+          {
+            "name": "Context Establishment"
+          },
+          {
+            "name": "Irrelevant Detail"
+          },
+          {
+            "name": "Redundant Analysis"
+          },
+          {
+            "name": "Spatial Analysis"
+          }
+        ]
+      },
+      {
+        "name": "cluster_2",
+        "size": 3,
+        "children": [
+          {
+            "name": "Accurate Visual Analysis"
+          },
+          {
+            "name": "Lack of Focus"
+          },
+          {
+            "name": "Misaligned Focus"
+          }
+        ]
+      },
+      {
+        "name": "cluster_61",
+        "size": 1,
+        "children": [
+          {
+            "name": "Appliance Analysis"
+          }
+        ]
+      },
+      {
+        "name": "cluster_62",
+        "size": 1,
+        "children": [
+          {
+            "name": "Architectural Context Deduction"
+          }
+        ]
+      },
+      {
+        "name": "cluster_102",
+        "size": 1,
+        "children": [
+          {
+            "name": "Data Identification"
+          }
+        ]
+      },
+      {
+        "name": "cluster_48",
+        "size": 3,
+        "children": [
+          {
+            "name": "Accuracy Verification"
+          },
+          {
+            "name": "Algebraic Solution"
+          },
+          {
+            "name": "Verification Process"
+          }
+        ]
+      },
+      {
+        "name": "cluster_52",
+        "size": 4,
+        "children": [
+          {
+            "name": "Ambiance Recognition"
+          },
+          {
+            "name": "Behavioral Analysis"
+          },
+          {
+            "name": "Option Comparison"
+          },
+          {
+            "name": "Premature Assumption"
+          }
+        ]
+      },
+      {
+        "name": "cluster_98",
+        "size": 3,
+        "children": [
+          {
+            "name": "Angle Utilization"
+          },
+          {
+            "name": "Formula Recall"
+          },
+          {
+            "name": "Mathematical Precision"
+          }
+        ]
+      },
+      {
+        "name": "cluster_123",
+        "size": 3,
+        "children": [
+          {
+            "name": "Accurate Structural Analysis"
+          },
+          {
+            "name": "Attention to Detail"
+          },
+          {
+            "name": "Incorrect Definition"
+          }
+        ]
+      },
+      {
+        "name": "cluster_3",
+        "size": 3,
+        "children": [
+          {
+            "name": "Activity Analysis"
+          },
+          {
+            "name": "Activity Misinterpretation"
+          },
+          {
+            "name": "Evidence Integration"
+          }
+        ]
+      },
+      {
+        "name": "cluster_54",
+        "size": 3,
+        "children": [
+          {
+            "name": "Ambiguous Reasoning"
+          },
+          {
+            "name": "Animal Behavior Analysis"
+          },
+          {
+            "name": "Synthesis of Evidence"
+          }
+        ]
+      },
+      {
+        "name": "cluster_59",
+        "size": 4,
+        "children": [
+          {
+            "name": "Angle Relationships"
+          },
+          {
+            "name": "Incorrect Focus"
+          },
+          {
+            "name": "Proportional Reasoning"
+          },
+          {
+            "name": "Redundant Reasoning"
+          }
+        ]
+      },
+      {
+        "name": "cluster_74",
+        "size": 2,
+        "children": [
+          {
+            "name": "Contextual Inconsistency"
+          },
+          {
+            "name": "Misaligned Reasoning"
+          }
+        ]
+      },
+      {
+        "name": "cluster_53",
+        "size": 3,
+        "children": [
+          {
+            "name": "Ambiguous Deduction"
+          },
+          {
+            "name": "Attire Analysis"
+          },
+          {
+            "name": "Environment Analysis"
+          }
+        ]
+      },
+      {
+        "name": "cluster_67",
+        "size": 1,
+        "children": [
+          {
+            "name": "Clothing-Based Temperature Inference"
+          }
+        ]
+      },
+      {
+        "name": "cluster_24",
+        "size": 4,
+        "children": [
+          {
+            "name": "Circle Property Application"
+          },
+          {
+            "name": "Clarity Issue"
+          },
+          {
+            "name": "Incorrect Theorem Application"
+          },
+          {
+            "name": "Problem Understanding"
+          }
+        ]
+      },
+      {
+        "name": "cluster_26",
+        "size": 3,
+        "children": [
+          {
+            "name": "Cyclic Quadrilateral Properties"
+          },
+          {
+            "name": "Geometric Properties Application"
+          },
+          {
+            "name": "Variable Resolution"
+          }
+        ]
+      },
+      {
+        "name": "cluster_21",
+        "size": 2,
+        "children": [
+          {
+            "name": "Accuracy Check"
+          },
+          {
+            "name": "Angle-Side Association"
+          }
+        ]
+      },
+      {
+        "name": "cluster_96",
+        "size": 3,
+        "children": [
+          {
+            "name": "Accurate Angle Identification"
+          },
+          {
+            "name": "Decimal Conversion"
+          },
+          {
+            "name": "Precision Maintenance"
+          }
+        ]
+      },
+      {
+        "name": "cluster_122",
+        "size": 3,
+        "children": [
+          {
+            "name": "Accurate Dimension Recognition"
+          },
+          {
+            "name": "Lack of Clarity"
+          },
+          {
+            "name": "Lack of Evidence"
+          }
+        ]
+      },
+      {
+        "name": "cluster_76",
+        "size": 1,
+        "children": [
+          {
+            "name": "Equation Development"
+          }
+        ]
+      },
+      {
+        "name": "cluster_95",
+        "size": 1,
+        "children": [
+          {
+            "name": "arbitrariness"
+          }
+        ]
+      },
+      {
+        "name": "cluster_57",
+        "size": 4,
+        "children": [
+          {
+            "name": "Angle Misassignment"
+          },
+          {
+            "name": "Arc Calculation"
+          },
+          {
+            "name": "Error Reinforcement"
+          },
+          {
+            "name": "Misinterpretation"
+          }
+        ]
+      },
+      {
+        "name": "cluster_68",
+        "size": 1,
+        "children": [
+          {
+            "name": "Completion of Problem"
+          }
+        ]
+      },
+      {
+        "name": "cluster_107",
+        "size": 2,
+        "children": [
+          {
+            "name": "Dimension Recognition"
+          },
+          {
+            "name": "Irrelevant Summation"
+          }
+        ]
+      },
+      {
+        "name": "cluster_0",
+        "size": 3,
+        "children": [
+          {
+            "name": "Accurate Substitution"
+          },
+          {
+            "name": "Data Extraction"
+          },
+          {
+            "name": "Problem Identification"
+          }
+        ]
+      },
+      {
+        "name": "cluster_55",
+        "size": 2,
+        "children": [
+          {
+            "name": "Angle Analysis"
+          },
+          {
+            "name": "Attempted Calculation"
+          }
+        ]
+      },
+      {
+        "name": "cluster_58",
+        "size": 1,
+        "children": [
+          {
+            "name": "Angle Misfocus"
+          }
+        ]
+      },
+      {
+        "name": "cluster_66",
+        "size": 3,
+        "children": [
+          {
+            "name": "Calculation Refinement"
+          },
+          {
+            "name": "Segment Analysis"
+          },
+          {
+            "name": "Theorem Application"
+          }
+        ]
+      },
+      {
+        "name": "cluster_51",
+        "size": 3,
+        "children": [
+          {
+            "name": "Altitude Calculation"
+          },
+          {
+            "name": "Angle Misinterpretation"
+          },
+          {
+            "name": "Vague Reasoning"
+          }
+        ]
+      },
+      {
+        "name": "cluster_99",
+        "size": 1,
+        "children": [
+          {
+            "name": "Answer Matching Error"
+          }
+        ]
+      },
+      {
+        "name": "cluster_104",
+        "size": 2,
+        "children": [
+          {
+            "name": "Deviation"
+          },
+          {
+            "name": "Misleading Setup"
+          }
+        ]
+      },
+      {
+        "name": "cluster_121",
+        "size": 3,
+        "children": [
+          {
+            "name": "Accurate Computation"
+          },
+          {
+            "name": "Completion"
+          },
+          {
+            "name": "Inefficient Reasoning"
+          }
+        ]
+      },
+      {
+        "name": "cluster_49",
+        "size": 3,
+        "children": [
+          {
+            "name": "Accurate Deduction"
+          },
+          {
+            "name": "Calculation Verification"
+          },
+          {
+            "name": "Geometric Relationship Identification"
+          }
+        ]
+      },
+      {
+        "name": "cluster_124",
+        "size": 2,
+        "children": [
+          {
+            "name": "Accurate Use of Given Information"
+          },
+          {
+            "name": "Faulty Reasoning"
+          }
+        ]
+      },
+      {
+        "name": "cluster_125",
+        "size": 4,
+        "children": [
+          {
+            "name": "Accurate Use of Vertical Angle Theorem"
+          },
+          {
+            "name": "Angle Relationship Identification"
+          },
+          {
+            "name": "Correct Conclusion"
+          },
+          {
+            "name": "Logical Extension"
+          }
+        ]
+      },
+      {
+        "name": "cluster_80",
+        "size": 1,
+        "children": [
+          {
+            "name": "Geometric Structure Identification"
+          }
+        ]
+      },
+      {
+        "name": "cluster_126",
+        "size": 3,
+        "children": [
+          {
+            "name": "Algebraic Simplification"
+          },
+          {
+            "name": "Logical Foundation"
+          },
+          {
+            "name": "Misguided Focus"
+          }
+        ]
+      },
+      {
+        "name": "cluster_69",
+        "size": 1,
+        "children": [
+          {
+            "name": "Component Identification"
+          }
+        ]
+      },
+      {
+        "name": "cluster_10",
+        "size": 3,
+        "children": [
+          {
+            "name": "Algebraic Calculation"
+          },
+          {
+            "name": "Geometric Property Application"
+          },
+          {
+            "name": "Side Identification"
+          }
+        ]
+      },
+      {
+        "name": "cluster_39",
+        "size": 2,
+        "children": [
+          {
+            "name": "Algebraic Precision"
+          },
+          {
+            "name": "Generic Reasoning"
+          }
+        ]
+      },
+      {
+        "name": "cluster_56",
+        "size": 2,
+        "children": [
+          {
+            "name": "Angle Calculation Attempt"
+          },
+          {
+            "name": "Symmetry Utilization"
+          }
+        ]
+      },
+      {
+        "name": "cluster_129",
+        "size": 1,
+        "children": [
+          {
+            "name": "Angle-Specific Reasoning"
+          }
+        ]
+      },
+      {
+        "name": "cluster_97",
+        "size": 2,
+        "children": [
+          {
+            "name": "Accurate Proportionality Setup"
+          },
+          {
+            "name": "Calculation Accuracy"
+          }
+        ]
+      },
+      {
+        "name": "cluster_71",
+        "size": 1,
+        "children": [
+          {
+            "name": "Confusing Calculation"
+          }
+        ]
+      },
+      {
+        "name": "cluster_78",
+        "size": 1,
+        "children": [
+          {
+            "name": "Foundational Analysis"
+          }
+        ]
+      },
+      {
+        "name": "cluster_85",
+        "size": 1,
+        "children": [
+          {
+            "name": "Irrelevant Setup"
+          }
+        ]
+      },
+      {
+        "name": "cluster_23",
+        "size": 2,
+        "children": [
+          {
+            "name": "Calculation Precision"
+          },
+          {
+            "name": "Clarity Issues"
+          }
+        ]
+      },
+      {
+        "name": "cluster_63",
+        "size": 1,
+        "children": [
+          {
+            "name": "Arithmetic Execution"
+          }
+        ]
+      },
+      {
+        "name": "cluster_25",
+        "size": 2,
+        "children": [
+          {
+            "name": "Conceptual Clarity"
+          },
+          {
+            "name": "Final Computation"
+          }
+        ]
+      },
+      {
+        "name": "cluster_77",
+        "size": 2,
+        "children": [
+          {
+            "name": "Equation Identification"
+          },
+          {
+            "name": "Incorrect Verification"
+          }
+        ]
+      },
+      {
+        "name": "cluster_117",
+        "size": 1,
+        "children": [
+          {
+            "name": "Shape Identification"
+          }
+        ]
+      },
+      {
+        "name": "cluster_101",
+        "size": 2,
+        "children": [
+          {
+            "name": "Conclusion Justification"
+          },
+          {
+            "name": "Overgeneralization"
+          }
+        ]
+      },
+      {
+        "name": "cluster_73",
+        "size": 2,
+        "children": [
+          {
+            "name": "Contextual Deduction"
+          },
+          {
+            "name": "Premature Conclusion"
+          }
+        ]
+      },
+      {
+        "name": "cluster_94",
+        "size": 1,
+        "children": [
+          {
+            "name": "Environmental Observation"
+          }
+        ]
+      },
+      {
+        "name": "cluster_28",
+        "size": 2,
+        "children": [
+          {
+            "name": "Faulty Verification"
+          },
+          {
+            "name": "Geometric Reasoning"
+          }
+        ]
+      },
+      {
+        "name": "cluster_7",
+        "size": 1,
+        "children": [
+          {
+            "name": "Final Deduction"
+          }
+        ]
+      },
+      {
+        "name": "cluster_88",
+        "size": 2,
+        "children": [
+          {
+            "name": "Incomplete Analysis"
+          },
+          {
+            "name": "Logical Deduction"
+          }
+        ]
+      },
+      {
+        "name": "cluster_12",
+        "size": 2,
+        "children": [
+          {
+            "name": "Incorrect Equation Setup"
+          },
+          {
+            "name": "Property Application"
+          }
+        ]
+      },
+      {
+        "name": "cluster_136",
+        "size": 2,
+        "children": [
+          {
+            "name": "Invalid Calculation"
+          },
+          {
+            "name": "Propagation of Error"
+          }
+        ]
+      },
+      {
+        "name": "cluster_32",
+        "size": 2,
+        "children": [
+          {
+            "name": "Irrelevance"
+          },
+          {
+            "name": "Vagueness"
+          }
+        ]
+      },
+      {
+        "name": "cluster_118",
+        "size": 2,
+        "children": [
+          {
+            "name": "Irrelevant Calculation"
+          },
+          {
+            "name": "Unnecessary Complexity"
+          }
+        ]
+      },
+      {
+        "name": "cluster_9",
+        "size": 2,
+        "children": [
+          {
+            "name": "Logical Conclusion"
+          },
+          {
+            "name": "Misinterpretation of Evidence"
+          }
+        ]
+      },
+      {
+        "name": "cluster_46",
+        "size": 1,
+        "children": [
+          {
+            "name": "Problem Setup Clarity"
+          }
+        ]
+      },
+      {
+        "name": "cluster_120",
+        "size": 1,
+        "children": [
+          {
+            "name": "Accurate Calculation"
+          }
+        ]
+      },
+      {
+        "name": "cluster_22",
+        "size": 1,
+        "children": [
+          {
+            "name": "Algebraic Manipulation"
+          }
+        ]
+      },
+      {
+        "name": "cluster_127",
+        "size": 1,
+        "children": [
+          {
+            "name": "Angle Calculation"
+          }
+        ]
+      },
+      {
+        "name": "cluster_128",
+        "size": 1,
+        "children": [
+          {
+            "name": "Angle Identification"
+          }
+        ]
+      },
+      {
+        "name": "cluster_130",
+        "size": 1,
+        "children": [
+          {
+            "name": "Answer Matching"
+          }
+        ]
+      },
+      {
+        "name": "cluster_131",
+        "size": 1,
+        "children": [
+          {
+            "name": "Calculation Error"
+          }
+        ]
+      },
+      {
+        "name": "cluster_132",
+        "size": 1,
+        "children": [
+          {
+            "name": "Comparative Reasoning"
+          }
+        ]
+      },
+      {
+        "name": "cluster_100",
+        "size": 1,
+        "children": [
+          {
+            "name": "Conclusion Clarity"
+          }
+        ]
+      },
+      {
+        "name": "cluster_40",
+        "size": 1,
+        "children": [
+          {
+            "name": "Consistency Check"
+          }
+        ]
+      },
+      {
+        "name": "cluster_72",
+        "size": 1,
+        "children": [
+          {
+            "name": "Consistency in Reasoning"
+          }
+        ]
+      },
+      {
+        "name": "cluster_103",
+        "size": 1,
+        "children": [
+          {
+            "name": "Detail Recognition"
+          }
+        ]
+      },
+      {
+        "name": "cluster_105",
+        "size": 1,
+        "children": [
+          {
+            "name": "Diagram Analysis"
+          }
+        ]
+      },
+      {
+        "name": "cluster_106",
+        "size": 1,
+        "children": [
+          {
+            "name": "Diagram Interpretation"
+          }
+        ]
+      },
+      {
+        "name": "cluster_108",
+        "size": 1,
+        "children": [
+          {
+            "name": "Disconnected Reasoning"
+          }
+        ]
+      },
+      {
+        "name": "cluster_75",
+        "size": 1,
+        "children": [
+          {
+            "name": "Distracting Reasoning"
+          }
+        ]
+      },
+      {
+        "name": "cluster_41",
+        "size": 1,
+        "children": [
+          {
+            "name": "Equation Formulation"
+          }
+        ]
+      },
+      {
+        "name": "cluster_27",
+        "size": 1,
+        "children": [
+          {
+            "name": "Equation Setup"
+          }
+        ]
+      },
+      {
+        "name": "cluster_109",
+        "size": 1,
+        "children": [
+          {
+            "name": "Error Prevention"
+          }
+        ]
+      },
+      {
+        "name": "cluster_133",
+        "size": 1,
+        "children": [
+          {
+            "name": "Error Propagation"
+          }
+        ]
+      },
+      {
+        "name": "cluster_5",
+        "size": 1,
+        "children": [
+          {
+            "name": "Evidence Synthesis"
+          }
+        ]
+      },
+      {
+        "name": "cluster_6",
+        "size": 1,
+        "children": [
+          {
+            "name": "Evidence-Based Reasoning"
+          }
+        ]
+      },
+      {
+        "name": "cluster_110",
+        "size": 1,
+        "children": [
+          {
+            "name": "Exclusion of Irrelevant Options"
+          }
+        ]
+      },
+      {
+        "name": "cluster_42",
+        "size": 1,
+        "children": [
+          {
+            "name": "Final Calculation"
+          }
+        ]
+      },
+      {
+        "name": "cluster_111",
+        "size": 1,
+        "children": [
+          {
+            "name": "Final Validation"
+          }
+        ]
+      },
+      {
+        "name": "cluster_112",
+        "size": 1,
+        "children": [
+          {
+            "name": "Formula Application"
+          }
+        ]
+      },
+      {
+        "name": "cluster_79",
+        "size": 1,
+        "children": [
+          {
+            "name": "Geometric Identification"
+          }
+        ]
+      },
+      {
+        "name": "cluster_29",
+        "size": 1,
+        "children": [
+          {
+            "name": "Geometric Misfocus"
+          }
+        ]
+      },
+      {
+        "name": "cluster_113",
+        "size": 1,
+        "children": [
+          {
+            "name": "Geometric Recognition"
+          }
+        ]
+      },
+      {
+        "name": "cluster_81",
+        "size": 1,
+        "children": [
+          {
+            "name": "Hypotenuse Calculation"
+          }
+        ]
+      },
+      {
+        "name": "cluster_11",
+        "size": 1,
+        "children": [
+          {
+            "name": "Incomplete Explanation"
+          }
+        ]
+      },
+      {
+        "name": "cluster_30",
+        "size": 1,
+        "children": [
+          {
+            "name": "Incomplete Reasoning"
+          }
+        ]
+      },
+      {
+        "name": "cluster_43",
+        "size": 1,
+        "children": [
+          {
+            "name": "Incomplete Setup"
+          }
+        ]
+      },
+      {
+        "name": "cluster_82",
+        "size": 1,
+        "children": [
+          {
+            "name": "Incorrect Assumption"
+          }
+        ]
+      },
+      {
+        "name": "cluster_83",
+        "size": 1,
+        "children": [
+          {
+            "name": "Incorrect Calculation"
+          }
+        ]
+      },
+      {
+        "name": "cluster_134",
+        "size": 1,
+        "children": [
+          {
+            "name": "Incorrect Conclusion"
+          }
+        ]
+      },
+      {
+        "name": "cluster_135",
+        "size": 1,
+        "children": [
+          {
+            "name": "Incorrect Geometric Assumption"
+          }
+        ]
+      },
+      {
+        "name": "cluster_13",
+        "size": 1,
+        "children": [
+          {
+            "name": "Incorrect Problem Setup"
+          }
+        ]
+      },
+      {
+        "name": "cluster_31",
+        "size": 1,
+        "children": [
+          {
+            "name": "Incorrect Property Application"
+          }
+        ]
+      },
+      {
+        "name": "cluster_44",
+        "size": 1,
+        "children": [
+          {
+            "name": "Insufficient Detail"
+          }
+        ]
+      },
+      {
+        "name": "cluster_33",
+        "size": 1,
+        "children": [
+          {
+            "name": "Irrelevant Complexity"
+          }
+        ]
+      },
+      {
+        "name": "cluster_84",
+        "size": 1,
+        "children": [
+          {
+            "name": "Irrelevant Focus"
+          }
+        ]
+      },
+      {
+        "name": "cluster_34",
+        "size": 1,
+        "children": [
+          {
+            "name": "Irrelevant Reasoning"
+          }
+        ]
+      },
+      {
+        "name": "cluster_14",
+        "size": 1,
+        "children": [
+          {
+            "name": "Irrelevant Step"
+          }
+        ]
+      },
+      {
+        "name": "cluster_8",
+        "size": 1,
+        "children": [
+          {
+            "name": "Key Element Identification"
+          }
+        ]
+      },
+      {
+        "name": "cluster_15",
+        "size": 1,
+        "children": [
+          {
+            "name": "Lack of Context"
+          }
+        ]
+      },
+      {
+        "name": "cluster_45",
+        "size": 1,
+        "children": [
+          {
+            "name": "Lack of Progress"
+          }
+        ]
+      },
+      {
+        "name": "cluster_86",
+        "size": 1,
+        "children": [
+          {
+            "name": "Lack of Progression"
+          }
+        ]
+      },
+      {
+        "name": "cluster_87",
+        "size": 1,
+        "children": [
+          {
+            "name": "Lack of Specificity"
+          }
+        ]
+      },
+      {
+        "name": "cluster_137",
+        "size": 1,
+        "children": [
+          {
+            "name": "Logical Consistency"
+          }
+        ]
+      },
+      {
+        "name": "cluster_16",
+        "size": 1,
+        "children": [
+          {
+            "name": "Logical Error"
+          }
+        ]
+      },
+      {
+        "name": "cluster_17",
+        "size": 1,
+        "children": [
+          {
+            "name": "Logical Inconsistency"
+          }
+        ]
+      },
+      {
+        "name": "cluster_138",
+        "size": 1,
+        "children": [
+          {
+            "name": "Logical Progression"
+          }
+        ]
+      },
+      {
+        "name": "cluster_89",
+        "size": 1,
+        "children": [
+          {
+            "name": "Mathematical Accuracy"
+          }
+        ]
+      },
+      {
+        "name": "cluster_139",
+        "size": 1,
+        "children": [
+          {
+            "name": "Mathematical Rigor"
+          }
+        ]
+      },
+      {
+        "name": "cluster_18",
+        "size": 1,
+        "children": [
+          {
+            "name": "Misapplication of Properties"
+          }
+        ]
+      },
+      {
+        "name": "cluster_140",
+        "size": 1,
+        "children": [
+          {
+            "name": "Misinterpretation of Diagram"
+          }
+        ]
+      },
+      {
+        "name": "cluster_90",
+        "size": 1,
+        "children": [
+          {
+            "name": "Option Elimination"
+          }
+        ]
+      },
+      {
+        "name": "cluster_114",
+        "size": 1,
+        "children": [
+          {
+            "name": "Overcomplication"
+          }
+        ]
+      },
+      {
+        "name": "cluster_115",
+        "size": 1,
+        "children": [
+          {
+            "name": "Preparation for Calculation"
+          }
+        ]
+      },
+      {
+        "name": "cluster_116",
+        "size": 1,
+        "children": [
+          {
+            "name": "Problem Setup"
+          }
+        ]
+      },
+      {
+        "name": "cluster_35",
+        "size": 1,
+        "children": [
+          {
+            "name": "Redundancy"
+          }
+        ]
+      },
+      {
+        "name": "cluster_36",
+        "size": 1,
+        "children": [
+          {
+            "name": "Solution Confirmation"
+          }
+        ]
+      },
+      {
+        "name": "cluster_91",
+        "size": 1,
+        "children": [
+          {
+            "name": "Solution Verification"
+          }
+        ]
+      },
+      {
+        "name": "cluster_92",
+        "size": 1,
+        "children": [
+          {
+            "name": "Speculative Reasoning"
+          }
+        ]
+      },
+      {
+        "name": "cluster_37",
+        "size": 1,
+        "children": [
+          {
+            "name": "Substitution Accuracy"
+          }
+        ]
+      },
+      {
+        "name": "cluster_93",
+        "size": 1,
+        "children": [
+          {
+            "name": "Synthesis of Observations"
+          }
+        ]
+      },
+      {
+        "name": "cluster_19",
+        "size": 1,
+        "children": [
+          {
+            "name": "Triangle Identification"
+          }
+        ]
+      },
+      {
+        "name": "cluster_20",
+        "size": 1,
+        "children": [
+          {
+            "name": "Trigonometric Application"
+          }
+        ]
+      },
+      {
+        "name": "cluster_38",
+        "size": 1,
+        "children": [
+          {
+            "name": "Verification"
+          }
+        ]
+      }
+    ]
+  }
+}

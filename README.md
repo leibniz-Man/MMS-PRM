@@ -1,76 +1,176 @@
 <div align="center">
 
-<h1>Unveiling Chain of Step Reasoning for Vision-Language Models with Fine-grained Rewards</h1>
+# Improving Multimodal Reasoning via Worst Dimension Optimization
 
-[Honghao Chen](https://scholar.google.com.hk/citations?user=j_yFqlsAAAAJ&hl=zh-CN)<sup>1,2,3#</sup>, [Xingzhou Lou](https://scholar.google.com.hk/citations?hl=zh-CN&user=vqrGnsQAAAAJ)<sup>1,2#</sup>, [Xiaokun Feng](https://scholar.google.com.hk/citations?hl=zh-CN&user=NqXtIPIAAAAJ)<sup>1,2#</sup>, [Kaiqi Huang](https://scholar.google.com.hk/citations?hl=zh-CN&user=caQ-OmYAAAAJ)<sup>1,2</sup>, [Xinlong Wang](https://scholar.google.com/citations?hl=zh-CN&user=DPz0DjYAAAAJ&view_op=list_works&sortby=pubdate/)<sup>3</sup>
-
-<sup>1</sup>[CASIA](http://english.ia.cas.cn/), <sup>2</sup>[UCAS](https://english.ucas.ac.cn/), <sup>3</sup>[BAAI](https://www.baai.ac.cn/english.html)<br><sup>#</sup> Equal Contribution <br>
-[[`Paper`](https://arxiv.org/pdf/2509.19003v1)] 
-<p align="center">
-  <img src="assets/framework.png" width="299">
-</p>
+**MMS-PRM: A worst-dimension-aware process reward framework for reliable multimodal reasoning**
 
 </div>
 
-In this work, we introduce **C**hain **o**f **S**tep reasoning for vision-language models, enabling assessing reasoning step quality accurately and leading to effective reinforcement learning and inference-time scaling with fine-grained rewards. Experimental results across multiple benchmarks demonstrate the effectiveness of CoS. More importantly, we conduct extensive empirical analysis and ablations to unveil CoS’s appealing properties. We hope this paper offers insights into more complex multi-modal reasoning.
+<p align="center">
+  <img src="method.png" width="780">
+</p>
+
+## Introduction
+
+Multimodal reasoning requires a model to maintain correctness across multiple constraints at the same time, including visual grounding, logical consistency, semantic correctness, and task-specific validity. In complex visual reasoning tasks, a single failure dimension can invalidate the entire reasoning trajectory, even when the remaining dimensions appear strong.
+
+Existing process reward models often compress multiple reasoning-quality dimensions into a single scalar score. This scalarization can allow strong performance in one dimension to compensate for severe errors in another, such as visually hallucinated relations hidden behind fluent logical explanations.
+
+To address this issue, we propose **MMS-PRM**, a multimodal process reward framework that optimizes reasoning trajectories with explicit attention to the **worst-performing reward dimension**. Instead of rewarding average quality, MMS-PRM encourages balanced, non-compensatory reasoning paths where every activated dimension must remain reliable.
+
+## Highlights
+
+- **Worst-dimension optimization**: MMS-PRM prevents strong dimensions from masking failures in weaker dimensions.
+- **Hierarchical fine-grained reward space**: Multimodal reasoning quality is decomposed into interpretable reward dimensions and sub-dimensions.
+- **Chebyshev-guided MCTS**: Search is guided by augmented Chebyshev scalarization, prioritizing the weakest active dimension during trajectory exploration.
+- **Curriculum-style DPO**: Preference alignment progressively transfers search-discovered balanced reasoning behaviors into the policy.
+- **Strong multimodal reasoning performance**: MMS-PRM achieves consistent gains across multiple multimodal reasoning benchmarks.
+
+## Method Overview
+
+MMS-PRM consists of three main components:
+
+### 1. Hierarchical Fine-Grained Reward Space
+
+We construct a structured reward space to evaluate multimodal reasoning at the step level. Instead of assigning a single global score to each reasoning step, MMS-PRM activates multiple relevant reward dimensions according to the current reasoning context.
+
+These dimensions may include, but are not limited to:
+
+- Visual grounding
+- Logical consistency
+- Semantic correctness
+- Stepwise coherence
+- Geometric or mathematical validity
+- Conciseness and relevance
+
+This design enables more precise supervision and makes it possible to identify specific reasoning weaknesses that scalar rewards may overlook.
+
+### 2. Dynamic Reward-Guided Chebyshev MCTS
+
+MMS-PRM formulates trajectory search as a multi-objective optimization problem. During Monte Carlo Tree Search, each candidate reasoning step receives a multi-dimensional reward vector.
+
+To select balanced reasoning paths, MMS-PRM applies augmented Chebyshev scalarization. This mechanism gives priority to the worst-performing reward dimension, reducing the risk that a reasoning trajectory with strong average performance but a critical hidden failure will be selected.
+
+The search process includes:
+
+- **Selection**: Choose promising partial trajectories using reward-aware UCT.
+- **Expansion**: Sample candidate next reasoning steps from the current policy.
+- **Evaluation**: Score candidates using fine-grained multi-dimensional process rewards.
+- **Backpropagation**: Update search statistics to guide future trajectory exploration.
+
+### 3. Curriculum DPO for Policy Alignment
+
+After search, MMS-PRM converts the discovered trajectories into preference pairs and aligns the policy using Direct Preference Optimization.
+
+To stabilize learning, MMS-PRM introduces a curriculum strategy. Easier trajectories, typically shorter and closer to the ideal reward point, are used earlier in training. Harder and longer reasoning chains are gradually introduced as training progresses.
+
+This closed-loop process allows the model to improve from search-discovered balanced reasoning behaviors while progressively learning more complex multimodal reasoning patterns.
+
+## Model and Training Setup
+
+Our implementation is built on InternVL2.5-MPO as the base vision-language model.  
+For supervised fine-tuning, we use the ShareGPT-Step-300K data from the CoS resources.
+
+The overall training and alignment pipeline is:
+
+1. Start from the base vision-language model.
+2. Perform supervised fine-tuning on step-level reasoning data.
+3. Construct hierarchical fine-grained reward dimensions.
+4. Apply Chebyshev-guided MCTS to search for balanced reasoning trajectories.
+5. Build preference pairs from searched trajectories.
+6. Apply curriculum-style DPO for policy alignment.
+
+Implementation details:
+
+- **Base model**: InternVL2.5-MPO
+- **Reward / criteria generation model**: Qwen2.5-VL-32B-Instruct
+- **Embedding model**: BAAI/bge-en-icl
+- **Clustering algorithm**: BIRCH hierarchical clustering
+- **MCTS branch factor**: 3
+- **Search depth**: 10
+- **Reward fusion coefficient**: η = 0.5
+- **Chebyshev augmentation coefficient**: ρ = 0.1
+- **Ideal point update coefficient**: λ = 0.2
+
+## Results
+
+We evaluate MMS-PRM on six representative multimodal reasoning benchmarks, covering mathematical reasoning, chart reasoning, scientific diagram understanding, general visual reasoning, and multimodal chain-of-thought reasoning.
+
+| Method | Size | MathVista | MMStar | MMMU | M3CoT | AI2D | ChartQA | Average |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| InternVL2.5-MPO | 8B | 65.0 | 60.7 | 53.8 | 67.5 | 84.2 | 85.0 | 69.4 |
+| InternVL2.5-MPO + SFT | 8B | 65.9 | 61.0 | 53.7 | 75.7 | 81.6 | 88.3 | 71.0 |
+| **MMS-PRM** | 8B | **67.5** | **65.2** | **54.2** | **79.7** | **84.2** | **87.2** | **73.0** |
+
+MMS-PRM improves the SFT baseline on most benchmarks and achieves the best average performance among the compared variants. The gains are especially clear on reasoning-intensive benchmarks such as M3CoT and MathVista, suggesting that worst-dimension-aware process supervision is particularly useful for long-horizon multimodal reasoning.
+
+## Ablation Study
+
+We conduct ablation studies on the M3CoT validation set to analyze the contribution of each component.
+
+| Configuration | Accuracy (%) |
+| --- | ---: |
+| Baseline (SFT) | 67.4 |
+| + Hierarchical reward | 70.1 |
+| + Reward + Chebyshev MCTS | 73.6 |
+| DPO only (w/o MCTS) | 71.2 |
+| Weighted-sum MCTS | 75.3 |
+| **MMS-PRM (full)** | **79.7** |
+
+The full MMS-PRM framework achieves the best performance, showing that hierarchical rewards, Chebyshev-guided search, and curriculum-style DPO are complementary. Compared with weighted-sum MCTS, Chebyshev-guided MCTS better prevents weak-dimension collapse by explicitly emphasizing the lowest-performing reward dimension.
 
 
-## ShareGPT-Step-300K
 
-***Note***: You can directly use our SFT dataset (special tokens have been added) through the following link, or you can assess the raw step data to customize your SFT dataset. For customization, you can modify get_sft_json.py to get your SFT data accordingly.
+## Why Worst-Dimension Optimization Matters
 
-|                              | Description                           | Links                                                        |
-| ---------------------------- | ------------------------------------- | ------------------------------------------------------------ |
-| **ShareGPT-Step-300K.jsonl** | The SFT Jsonl                         | [🤗 HF link](https://huggingface.co/datasets/Lauch1ng/CoS-Dataset/blob/main/ShareGPT-Step-300K.jsonl) |
-| **images.zip**               | image files                           | [🤗 HF link](https://huggingface.co/datasets/Lauch1ng/CoS-Dataset/blob/main/images.zip) |
-| **raw_jsonl.zip**            | raw step jsonl file for customization | [🤗 HF link](https://huggingface.co/datasets/Lauch1ng/CoS-Dataset/blob/main/raw_jsonl.zip) |
+In multimodal reasoning, a trajectory can appear fluent and logically structured while still relying on incorrect visual assumptions. Scalar reward models may assign high scores to such trajectories because the strong dimensions compensate for weaker ones.
 
+MMS-PRM avoids this issue by emphasizing the weakest active dimension. This encourages the model to produce reasoning chains that are not only fluent but also visually grounded, logically coherent, and semantically valid.
 
-## PRM & Data
+## Usage
 
-***Note***: You can directly use our train jsonl file to train the PRM (special tokens have been added with a fixed format) through the following link, or you can assess the raw data to customize your dataset. For customization, you can modify get_prm_json.py to get your data accordingly.
+The code release will include scripts for:
 
-|                              | Description                           | Links                                                        |
-| ---------------------------- | ------------------------------------- | ------------------------------------------------------------ |
-| **CoS-PRM**                  | The PRM model                         | [🤗 HF link](https://huggingface.co/Lauch1ng/CoS-PRM/tree/main) |
-| **prm_data_raw.json**        | raw prm data                          | [🤗 HF link](https://huggingface.co/datasets/Lauch1ng/CoS-Dataset/blob/main/prm_data_raw.json) |
-| **prm_data_train.jsonl**     | prm training jsonl                    | [🤗 HF link](https://huggingface.co/datasets/Lauch1ng/CoS-Dataset/blob/main/prm_data_train.jsonl) |
+- Data preparation
+- Supervised fine-tuning
+- Fine-grained reward construction
+- Chebyshev-guided MCTS trajectory search
+- Preference pair construction
+- Curriculum DPO training
+- Benchmark evaluation
 
+Example usage commands will be added after code cleanup.
 
-## Checkpoints
+```bash
+# Coming soon
+```
 
-|                              | Description                           | Links                                                        |
-| ---------------------------- | ------------------------------------- | ------------------------------------------------------------ |
-| **CoS-SFT**                  | The SFT model                         | [🤗 HF link](https://huggingface.co/Lauch1ng/CoS-SFT) |
-| **CoS**                      | The RL model                          | [🤗 HF link](https://huggingface.co/Lauch1ng/CoS) |
+## TODO
 
-
-## ToDo List 
-
-- [x] SFT Dataset
-- [x] PRM & Dataset
-- [x] Training & Inference code
-- [x] Checkpoints
-
-
-## License
-
-[Apache License 2.0](LICENSE)
+- [x] Method design
+- [x] Main experiments
+- [x] Ablation studies
+- [ ] Code release
+- [ ] Training scripts
+- [ ] Evaluation scripts
+- [ ] Model checkpoints
 
 ## Citation
 
-```
-@article{chen2025unveiling,
-  title={Unveiling Chain of Step Reasoning for Vision-Language Models with Fine-grained Rewards},
-  author={Chen, Honghao and Lou, Xingzhou and Feng, Xiaokun and Huang, Kaiqi and Wang, Xinlong},
-  journal={arXiv preprint arXiv:2509.19003},
-  year={2025}
+If you find this work useful, please consider citing:
+
+```bibtex
+@misc{lv2025improving,
+  title  = {Improving Multimodal Reasoning via Worst Dimension Optimization},
+  author = {Lv, Haocheng and Zhang, Huaping and Li, Qiuchi and Li, Lei and Gao, Chunxiao},
+  year   = {2025}
 }
 ```
 
+## Acknowledgements
 
-## Acknowledgement
+We thank the open-source community for their contributions to multimodal reasoning, process reward modeling, tree search, and preference optimization. This work builds upon recent progress in vision-language models, fine-grained process supervision, Monte Carlo Tree Search, and Direct Preference Optimization.
 
-We thank the repositories for their excellent work: [InternVL](https://github.com/OpenGVLab/InternVL), [LLaVa-NeXt](https://github.com/haotian-liu/LLaVA), [TAP](https://github.com/baaivision/tokenize-anything)
+## License
 
-
+This project is released under the [Apache License 2.0](LICENSE).

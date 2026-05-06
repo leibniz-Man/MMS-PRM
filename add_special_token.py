@@ -1,4 +1,3 @@
-import os
 from transformers import AutoTokenizer, AutoModelForCausalLM, AutoConfig, BitsAndBytesConfig
 from internvl.model import *
 import torch

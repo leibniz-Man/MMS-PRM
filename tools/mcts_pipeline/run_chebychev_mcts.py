@@ -262,12 +262,16 @@ def update_ideal_point(
     reward_vector: List[float],
     ideal_lambda: float,
 ) -> List[float]:
-    """z*_j <- (1-lambda) z*_j + lambda v_j."""
+    """Adaptive update: broadcast the worst-dimension gap to all dimensions."""
 
-    return [
-        (1.0 - ideal_lambda) * z + ideal_lambda * v
-        for z, v in zip(ideal_point, reward_vector)
-    ]
+    # Keep the argument for API compatibility with existing call sites.
+    _ = ideal_lambda
+    gaps = [z - v for z, v in zip(ideal_point, reward_vector)]
+    if not gaps:
+        return ideal_point
+
+    delta_max = max(gaps)
+    return [delta_max] * len(ideal_point)
 
 
 def trajectory_nodes(node: MCTSNode) -> List[MCTSNode]:
